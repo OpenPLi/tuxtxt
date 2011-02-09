@@ -2915,6 +2915,7 @@ int GetRCCode()
 				case KEY_MENU:		RCCode = RC_DBOX;	break;
 				case KEY_EXIT:		RCCode = RC_HOME;	break;
 				case KEY_POWER:		RCCode = RC_STANDBY;	break;
+				default:			RCCode = -1;		break;
 				}
 				return 1;
 			}
