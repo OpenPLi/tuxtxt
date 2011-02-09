@@ -13,4 +13,6 @@ CFLAGS="$CFLAGS $TUXTXT_CFLAGS"
 
 AC_OUTPUT([
 Makefile
+font/Makefile
+data/Makefile
 ])

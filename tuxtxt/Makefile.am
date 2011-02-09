@@ -1,4 +1,4 @@
-SUBDIRS = font 
+SUBDIRS = font data
 
 AM_CPPFLAGS = \
 	@FREETYPE_CFLAGS@ \
@@ -11,5 +11,3 @@ tuxtxt_LDADD = -lpthread -lz \
 	@TUXTXT_LIBS@
 
 tuxtxt_SOURCES = tuxtxt.c
-
-install_DATA = tuxtxt.conf
