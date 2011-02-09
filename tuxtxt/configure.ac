@@ -5,6 +5,7 @@ AC_PROG_CC
 AC_PROG_CXX
 AC_DISABLE_STATIC
 AM_PROG_LIBTOOL
+AM_PATH_PYTHON
 
 TUXBOX_APPS
 TUXBOX_APPS_DIRECTORY
@@ -22,4 +23,5 @@ AC_OUTPUT([
 Makefile
 font/Makefile
 data/Makefile
+plugin/Makefile
 ])

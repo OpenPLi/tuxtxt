@@ -1,4 +1,4 @@
-SUBDIRS = font data
+SUBDIRS = font data plugin
 
 AM_CPPFLAGS = \
 	@FREETYPE_CFLAGS@ \
