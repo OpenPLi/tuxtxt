@@ -245,7 +245,6 @@ int tuxtxt_run_ui(int pid, int demux)
 	if ((lcd=open("/dev/dbox/lcd0", O_RDWR)) == -1)
 	{
 		perror("TuxTxt <open /dev/dbox/lcd0>");
-		return 0;
 	}
 
 	renderinfo.previousbackcolor = tuxtxt_color_transp;
@@ -2496,6 +2495,8 @@ void SwitchHintMode()
 void RenderCharLCD(int Digit, int XPos, int YPos)
 {
 	int x, y;
+
+	if (lcd < 0) return;
 
 	/* render digit to lcd backbuffer */
 	for (y = 0; y < 15; y++)
