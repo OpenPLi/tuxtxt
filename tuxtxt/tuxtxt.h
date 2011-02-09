@@ -52,7 +52,6 @@
 #include <dbox/fp.h>
 #include <dbox/lcd-ks0713.h>
 #endif
-#include <plugin.h>
 
 #include "tuxtxt_def.h"
 
