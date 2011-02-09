@@ -14,6 +14,13 @@ AC_HEADER_STDC
 
 TUXBOX_APPS_LIB_CONFIG(FREETYPE,freetype-config)
 
+PKG_CHECK_MODULES(ZLIB, zlib, HAVE_ZLIB="yes", HAVE_ZLIB="no")
+AC_SUBST(ZLIB_LIBS)
+AC_SUBST(ZLIB_CFLAGS)
+if test "$HAVE_ZLIB" = "yes"; then
+	AC_DEFINE(HAVE_ZLIB, 1, [zlib available])
+fi
+
 AC_OUTPUT([
 Makefile
 tuxbox-tuxtxt.pc
