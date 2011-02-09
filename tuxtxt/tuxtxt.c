@@ -175,7 +175,7 @@ void dump_page()
  * plugin_exec                                                                *
  ******************************************************************************/
 
-int main(int argc, char **argv)
+int tuxtxt_run_ui(int pid)
 {
 	char cvs_revision[] = "$Revision: 1.114 $";
 
@@ -194,17 +194,8 @@ int main(int argc, char **argv)
 
 	tuxtxt_SetRenderingDefaults(&renderinfo);
 	/* get params */
-	tuxtxt_cache.vtxtpid = renderinfo.fb = lcd = renderinfo.sx = renderinfo.ex = renderinfo.sy = renderinfo.ey = -1;
-	if (argc==1)
-	{
-		printf("\nUSAGE: tuxtxt vtpid\n");
-		printf("No PID given, so scanning for PIDs ...\n\n");
-		tuxtxt_cache.vtxtpid=0;
-	}
-	else 
-	{
-		tuxtxt_cache.vtxtpid = atoi(argv[1]);
-	}
+	renderinfo.fb = lcd = renderinfo.sx = renderinfo.ex = renderinfo.sy = renderinfo.ey = -1;
+	tuxtxt_cache.vtxtpid = pid;
 
 	/* open Framebuffer */
 	if ((renderinfo.fb=open("/dev/fb/0", O_RDWR)) == -1)
@@ -464,11 +455,13 @@ int Init()
 
 
  	//page_atrb[32] = transp<<4 | transp;
-
-	for (magazine = 1; magazine < 9; magazine++)
+	if (!tuxtxt_cache.thread_starting && !tuxtxt_cache.receiving)
 	{
-		tuxtxt_cache.current_page  [magazine] = -1;
-		tuxtxt_cache.current_subpage [magazine] = -1;
+		for (magazine = 1; magazine < 9; magazine++)
+		{
+			tuxtxt_cache.current_page  [magazine] = -1;
+			tuxtxt_cache.current_subpage [magazine] = -1;
+		}
 	}
 #if TUXTXT_CFG_STANDALONE
 /* init data */
@@ -491,13 +484,16 @@ int Init()
 	tuxtxt_cache.page       = 0x100;
 #endif
 	lastpage   = tuxtxt_cache.page;
-	tuxtxt_cache.subpage    = tuxtxt_cache.subpagetable[tuxtxt_cache.page];
-	if (tuxtxt_cache.subpage == 0xff)
-	tuxtxt_cache.subpage    = 0;
-	
-	tuxtxt_cache.pageupdate = 0;
+	if (!tuxtxt_cache.thread_starting && !tuxtxt_cache.receiving)
+	{
+		tuxtxt_cache.subpage    = tuxtxt_cache.subpagetable[tuxtxt_cache.page];
+		if (tuxtxt_cache.subpage == 0xff)
+			tuxtxt_cache.subpage    = 0;
 
-	tuxtxt_cache.zap_subpage_manual = 0;
+		tuxtxt_cache.pageupdate = 0;
+
+		tuxtxt_cache.zap_subpage_manual = 0;
+	}
 
 	/* init lcd */
 	UpdateLCD();

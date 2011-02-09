@@ -4,10 +4,10 @@ AM_CPPFLAGS = \
 	@FREETYPE_CFLAGS@ \
 	@TUXTXT_CFLAGS@
 
-bin_PROGRAMS = tuxtxt
+lib_LTLIBRARIES = libtuxtxt32bpp.la
 
-tuxtxt_LDADD = -lpthread -lz \
+libtuxtxt32bpp_la_LIBADD = -lpthread \
 	@FREETYPE_LIBS@ \
 	@TUXTXT_LIBS@
 
-tuxtxt_SOURCES = tuxtxt.c
+libtuxtxt32bpp_la_SOURCES = tuxtxt.c
