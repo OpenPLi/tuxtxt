@@ -6,5 +6,5 @@ includedir=@includedir@
 Name: tuxbox-tuxtxt
 Description: tuxtxt
 Version: @VERSION@
-Libs: -L${libdir} -ltuxtxt @TUXBOX_LIBS@ @FREETYPE_LIBS@
+Libs: -L${libdir} -ltuxtxt @FREETYPE_LIBS@
 Cflags: -I${includedir} -I@DRIVER@/include
