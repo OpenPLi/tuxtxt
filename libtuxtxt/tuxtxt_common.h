@@ -5434,15 +5434,6 @@ int tuxtxt_InitRendering(tstRenderInfo* renderinfo,int setTVFormat)
 			 ymosaic[0], ymosaic[1], ymosaic[2], renderinfo->StartX, renderinfo->StartY, renderinfo->ascender);
 #endif
 
-	/* get fixed screeninfo */
-	if (ioctl(renderinfo->fb, FBIOGET_FSCREENINFO, &renderinfo->fix_screeninfo) == -1)
-	{
-		perror("TuxTxt <FBIOGET_FSCREENINFO>");
-		FTC_Manager_Done(renderinfo->manager);
-		FT_Done_FreeType(renderinfo->library);
-		return 0;
-	}
-
 	/* get variable screeninfo */
 	if (ioctl(renderinfo->fb, FBIOGET_VSCREENINFO, &renderinfo->var_screeninfo) == -1)
 	{
@@ -5452,6 +5443,12 @@ int tuxtxt_InitRendering(tstRenderInfo* renderinfo,int setTVFormat)
 		return 0;
 	}
 
+	/* change to PAL resolution */
+	if (renderinfo->var_screeninfo.xres != 720) 
+	{
+		renderinfo->var_screeninfo.xres_virtual = renderinfo->var_screeninfo.xres = 720;
+		renderinfo->var_screeninfo.yres_virtual = renderinfo->var_screeninfo.yres = 576;
+	}
 
 	/* set variable screeninfo for double buffering */
 	renderinfo->var_screeninfo.yres_virtual = 2*renderinfo->var_screeninfo.yres;
@@ -5461,6 +5458,15 @@ int tuxtxt_InitRendering(tstRenderInfo* renderinfo,int setTVFormat)
 	if (ioctl(renderinfo->fb, FBIOPUT_VSCREENINFO, &renderinfo->var_screeninfo) == -1)
 	{
 		perror("TuxTxt <FBIOPUT_VSCREENINFO>");
+		FTC_Manager_Done(renderinfo->manager);
+		FT_Done_FreeType(renderinfo->library);
+		return 0;
+	}
+
+	/* get fixed screeninfo */
+	if (ioctl(renderinfo->fb, FBIOGET_FSCREENINFO, &renderinfo->fix_screeninfo) == -1)
+	{
+		perror("TuxTxt <FBIOGET_FSCREENINFO>");
 		FTC_Manager_Done(renderinfo->manager);
 		FT_Done_FreeType(renderinfo->library);
 		return 0;
