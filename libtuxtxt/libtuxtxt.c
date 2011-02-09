@@ -7,6 +7,15 @@
  *    Info entnommen aus videotext-0.6.19991029,                              *
  *    Copyright (c) 1994-96 Martin Buck  <martin-2.buck@student.uni-ulm.de>   *
  *                                                                            *
+ *              ported 2006 to Dreambox 7025 / 32Bit framebuffer              *
+ *                   by Seddi <seddi@i-have-a-dreambox.com>                   *
+ *                                                                            *
+ *              ported 32Bit framebuffer to Tuxtxt v1.99 (2008)               *
+ *                      by the PLi team (Sat-Turner)                          *
+ *                                                                            *
+ *              ported to 20090130                                            *
+ *                      by the PLi team (pieterg)                             *
+ *                                                                            *
  ******************************************************************************/
 
 #ifdef DEBUG

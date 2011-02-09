@@ -80,10 +80,10 @@
 #define hold_mosaic         0x1E
 #define release_mosaic      0x1F
 
-#ifndef HAVE_TRIPLEDRAGON
-const int fncmodes[] = {AVS_FNCOUT_EXT43, AVS_FNCOUT_EXT169};
-const int saamodes[] = {SAA_WSS_43F, SAA_WSS_169F};
-#endif
+extern unsigned char bgra[][4];
+
+const char * fncmodes[] = {"12", "6"};
+const char * saamodes[] = {"4:3_full_format", "16:9_full_format"};
 
 typedef enum /* object type */
 {
