@@ -1,3 +1,6 @@
+#ifndef __tuxtxt_h__
+#define __tuxtxt_h__
+
 /******************************************************************************
  *                      <<< TuxTxt - Teletext Plugin >>>                      *
  *                                                                            *
@@ -7,7 +10,16 @@
  *                       and DBLuelle <dbluelle@blau-weissoedingen.de>        *
  *	russian and arabic support by Leonid Protasov <Lprot@mail.ru>         *
  *                                                                            *
- ******************************************************************************/
+ *              ported 2006 to Dreambox 7025 / 32Bit framebuffer              *
+ *                   by Seddi <seddi@i-have-a-dreambox.com>                   *
+ *                                                                            *
+ *              ported 32Bit framebuffer to Tuxtxt v1.99 (2008)               *
+ *                      by the PLi team (Sat-Turner)                          *
+ *                                                                            *
+ *              ported to 1.106 (2008)                                        *
+ *                      by the PLi team (pieterg)                             *
+ *                                                                            *
+******************************************************************************/
 
 #define TUXTXT_CFG_STANDALONE 0  // 1:plugin only 0:use library
 #define TUXTXT_DEBUG 0
@@ -1095,3 +1107,5 @@ int  GetRCCode();
 /* comment-column:0 */
 /* fill-column:120 */
 /* End: */
+
+#endif
