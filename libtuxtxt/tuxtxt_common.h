@@ -1763,9 +1763,9 @@ int tuxtxt_stop_thread()
 	if (tuxtxt_cache.dmx != -1)
 	{
 		ioctl(tuxtxt_cache.dmx, DMX_STOP);
-//        close(tuxtxt_cache.dmx);
-  	}
-//	tuxtxt_cache.dmx = -1;
+		close(tuxtxt_cache.dmx);
+	}
+	tuxtxt_cache.dmx = -1;
 #if 1//DEBUG
 	printf("TuxTxt stopped service %x\n", tuxtxt_cache.vtxtpid);
 #endif

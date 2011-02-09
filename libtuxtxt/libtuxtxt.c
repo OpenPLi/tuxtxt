@@ -65,6 +65,13 @@ int tuxtxt_init()
 	tuxtxt_cache.thread_id = 0;
 	tuxtxt_cache.dmx = -1;
 	pthread_mutex_unlock(&tuxtxt_control_lock);
+
+#if HAVE_DVB_API_VERSION < 3
+	strcpy(tuxtxt_cache.demux, "/dev/dvb/card0/demux0");
+#else
+	strcpy(tuxtxt_cache.demux, "/dev/dvb/adapter0/demux0");
+#endif
+
 	return 1;//tuxtxt_init_demuxer();
 }
 
@@ -82,7 +89,7 @@ int tuxtxt_stop()
 	pthread_mutex_unlock(&tuxtxt_control_lock);
 	return res;
 }
-int tuxtxt_start(int tpid)
+int tuxtxt_start(int tpid, int demux)
 {
 	int ret = 1;
 	pthread_mutex_lock(&tuxtxt_control_lock);
@@ -92,10 +99,26 @@ int tuxtxt_start(int tpid)
 		tuxtxt_clear_cache();
 		tuxtxt_cache.page = 0x100;
 		tuxtxt_cache.vtxtpid = tpid;
+		if (demux >= 0)
+		{
+#if HAVE_DVB_API_VERSION < 3
+			snprintf(tuxtxt_cache.demux, 64, "/dev/dvb/card0/demux%d", demux);
+#else
+			snprintf(tuxtxt_cache.demux, 64, "/dev/dvb/adapter0/demux%d", demux);
+#endif
+		}
 		ret = tuxtxt_start_thread();
 	}
 	else if (!tuxtxt_cache.thread_starting && !tuxtxt_cache.receiving)
 	{
+		if (demux >= 0)
+		{
+#if HAVE_DVB_API_VERSION < 3
+			snprintf(tuxtxt_cache.demux, 64, "/dev/dvb/card0/demux%d", demux);
+#else
+			snprintf(tuxtxt_cache.demux, 64, "/dev/dvb/adapter0/demux%d", demux);
+#endif
+		}
 		ret = tuxtxt_start_thread();
 	}
 	pthread_mutex_unlock(&tuxtxt_control_lock);

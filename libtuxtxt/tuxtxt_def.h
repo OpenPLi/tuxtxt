@@ -24,12 +24,12 @@
  #define pes_type pesType
  #define dmx_sct_filter_params dmxSctFilterParams
  #include <ost/dmx.h>
- #define DMX "/dev/dvb/card0/demux0"
 #else
  #include <linux/dvb/dmx.h>
- #define DMX "/dev/dvb/adapter0/demux0"
 #endif
 #endif
+
+#define DMX tuxtxt_cache.demux
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -333,6 +333,7 @@ typedef struct
 	short flofpages[0x900][FLOFSIZE];
 	unsigned char adip[0x900][13];
 	unsigned char subpagetable[0x900];
+	char demux[64];
 	int dmx;
 	int vtxtpid;
 	int cached_pages, page, subpage, pageupdate,page_receiving, current_page[9], current_subpage[9];
