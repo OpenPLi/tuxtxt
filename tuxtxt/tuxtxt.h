@@ -212,7 +212,7 @@ char versioninfo[16];
 int hotlist[10];
 int maxhotlist;
 
-int rc, lcd;
+int rc[2], lcd;
 int lastpage;
 int savedscreenmode;
 char dumpl25;

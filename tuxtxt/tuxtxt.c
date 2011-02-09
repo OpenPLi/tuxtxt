@@ -180,6 +180,7 @@ int main(int argc, char **argv)
 	char cvs_revision[] = "$Revision: 1.114 $";
 
 	int cnt=0;
+	int rc_num = 0;
 #if !TUXTXT_CFG_STANDALONE
 	int initialized = tuxtxt_init();
 	if ( initialized )
@@ -193,7 +194,7 @@ int main(int argc, char **argv)
 
 	tuxtxt_SetRenderingDefaults(&renderinfo);
 	/* get params */
-	tuxtxt_cache.vtxtpid = renderinfo.fb = lcd = rc = renderinfo.sx = renderinfo.ex = renderinfo.sy = renderinfo.ey = -1;
+	tuxtxt_cache.vtxtpid = renderinfo.fb = lcd = renderinfo.sx = renderinfo.ex = renderinfo.sy = renderinfo.ey = -1;
 	if (argc==1)
 	{
 		printf("\nUSAGE: tuxtxt vtpid\n");
@@ -211,8 +212,8 @@ int main(int argc, char **argv)
 		perror("TuxTxt <open /dev/fb/0>");
 		return 0;
 	}
-	rc=-1;
-	while(1)
+	rc[0] = rc[1] =-1;
+	while(rc_num < 2)
 	{
 		struct stat s;
 		char tmp[128];
@@ -220,23 +221,26 @@ int main(int argc, char **argv)
 		if (stat(tmp, &s))
 			break;
 		/* open Remote Control */
-		if ((rc=open(tmp, O_RDONLY)) == -1)
+		if ((rc[rc_num]=open(tmp, O_RDONLY)) == -1)
 		{
 			perror("TuxTxt <open remote control>");
 			return 0;
 		}
-		if (ioctl(rc, EVIOCGNAME(128), tmp) < 0)
+		if (ioctl(rc[rc_num], EVIOCGNAME(128), tmp) < 0)
 			perror("EVIOCGNAME failed");
-		if (strstr(tmp, "remote control"))
-			break;
-		close(rc);
-		rc=-1;
+		if (!strstr(tmp, "remote control"))
+		{
+			close(rc[rc_num]);
+			rc[rc_num] = -1;
+		}
+		else
+			++rc_num;
 		++cnt;
 	}
 
-	if (rc == -1)
+	if (rc[0] == -1)
 	{
-		printf("couldnt find correct input device!!!\n");
+		printf("couldnt find usable input device!!!\n");
 		return -1;
 	}
 
@@ -254,7 +258,7 @@ int main(int argc, char **argv)
 	renderinfo.sy = 30;
 	renderinfo.ey = 555;
 
-	if (tuxtxt_cache.vtxtpid == -1 || renderinfo.fb == -1 || rc == -1 || renderinfo.sx == -1 || renderinfo.ex == -1 || renderinfo.sy == -1 || renderinfo.ey == -1)
+	if (tuxtxt_cache.vtxtpid == -1 || renderinfo.fb == -1 || renderinfo.sx == -1 || renderinfo.ex == -1 || renderinfo.sy == -1 || renderinfo.ey == -1)
 	{
 		printf("TuxTxt <Invalid Param(s)>\n");
 		return;
@@ -625,9 +629,8 @@ int Init()
 	writeproc("/proc/stb/avs/0/sb", fncmodes[renderinfo.screen_mode1]);
 
 	/* setup rc */
-#ifndef HAVE_TRIPLEDRAGON
-	ioctl(rc, RC_IOCTL_BCODES, 1);
-#endif
+	if (rc[0] >= 0) ioctl(rc[0], RC_IOCTL_BCODES, 1);
+	if (rc[1] >= 0) ioctl(rc[1], RC_IOCTL_BCODES, 1);
 
 
 	gethotlist();
@@ -683,12 +686,16 @@ void CleanUp()
 	}
 
 	/* close rc */
-	if (rc >= 0)
+	if (rc[0] >= 0)
 	{
-		close(rc);
+		close(rc[0]);
+	}
+	if (rc[1] >= 0)
+	{
+		close(rc[1]);
 	}
 
-	lcd = rc = -1;
+	lcd = rc[0] = rc[1] = -1;
 
 	if (hotlistchanged)
 		savehotlist();
@@ -2835,20 +2842,28 @@ int GetRCCode()
 	timeout.tv_sec = 0;
 	timeout.tv_usec = 100000;
 	/* get code */
-	if (rc >= 0)
+	if (rc[0] >= 0)
 	{
-		FD_SET(rc, &rset);
-		if (rc > maxfd)
+		FD_SET(rc[0], &rset);
+		if (rc[0] > maxfd)
 		{
-			maxfd = rc;
+			maxfd = rc[0];
+		}
+	}
+	if (rc[1] >= 0)
+	{
+		FD_SET(rc[1], &rset);
+		if (rc[1] > maxfd)
+		{
+			maxfd = rc[1];
 		}
 	}
 	if (select(maxfd + 1, &rset, NULL, NULL, &timeout) > 0)
 	{
-		if (rc >= 0 && FD_ISSET(rc, &rset))
+		if (rc[0] >= 0 && FD_ISSET(rc[0], &rset))
 		{
 #if HAVE_DVB_API_VERSION < 3
-			read(rc, &RCCode, 2);
+			read(rc[0], &RCCode, 2);
 		}
 		if (RCCode != LastKey)
 		{
@@ -2858,7 +2873,11 @@ int GetRCCode()
 			{
 				switch (RCCode)
 #else
-			read(rc, &ev, sizeof(ev));
+			read(rc[0], &ev, sizeof(ev));
+		}
+		else if (rc[1] >= 0 && FD_ISSET(rc[1], &rset))
+		{
+			read(rc[1], &ev, sizeof(ev));
 		}
 		if (ev.value)
 		{
