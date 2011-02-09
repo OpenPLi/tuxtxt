@@ -538,7 +538,6 @@ int Init()
 
 
 	/* setup rc */
-	fcntl(rc, F_SETFL, O_NONBLOCK);
 #ifndef HAVE_TRIPLEDRAGON
 	ioctl(rc, RC_IOCTL_BCODES, 1);
 #endif
@@ -1222,7 +1221,7 @@ void Menu_Init(char *menu, int current_pid, int menuitem, int hotindex)
 
 void ConfigMenu(int Init)
 {
-	int val, menuitem = M_Start;
+	int menuitem = M_Start;
 	int current_pid = 0;
 	int hotindex;
 	int oldscreenmode;
@@ -1264,10 +1263,6 @@ void ConfigMenu(int Init)
 	tuxtxt_ClearFB(&renderinfo,tuxtxt_color_transp);
 	renderinfo.clearbbcolor = tuxtxt_color_black;
 	Menu_Init(menu, current_pid, menuitem, hotindex);
-
-	/* set blocking mode */
-	val = fcntl(rc, F_GETFL);
-	fcntl(rc, F_SETFL, val &~ O_NONBLOCK);
 
 	/* loop */
 	do {
@@ -1729,7 +1724,6 @@ void ConfigMenu(int Init)
 						current_service = current_pid;
 //						RenderMessage(ShowServiceName);
 
-						fcntl(rc, F_SETFL, O_NONBLOCK);
 						RCCode = -1;
 						if (oldscreenmode)
 							tuxtxt_SwitchScreenMode(&renderinfo,oldscreenmode); /* restore divided screen */
@@ -1800,8 +1794,6 @@ void ConfigMenu(int Init)
 		UpdateLCD(); /* update number of cached pages */
 	} while ((RCCode != RC_HOME) && (RCCode != RC_DBOX) && (RCCode != RC_MUTE));
 
-	/* reset to nonblocking mode */
-	fcntl(rc, F_SETFL, O_NONBLOCK);
 	tuxtxt_cache.pageupdate = 1;
 	RCCode = -1;
 	if (oldscreenmode)
@@ -2021,7 +2013,7 @@ void ColorKey(int target)
 void PageCatching()
 {
 	int active_national_subset=tuxtxt_cache.national_subset;
-	int val, byte;
+	int byte;
 	int oldzoommode = renderinfo.zoommode;
 
 	renderinfo.pagecatching = 1;
@@ -2053,10 +2045,6 @@ void PageCatching()
 		tuxtxt_cache.pageupdate = 1;
 		return;
 	}
-
-	/* set blocking mode */
-	val = fcntl(rc, F_GETFL);
-	fcntl(rc, F_SETFL, val &~ O_NONBLOCK);
 
 	/* loop */
 	do {
@@ -2096,7 +2084,6 @@ void PageCatching()
 		case RC_HOME:
 		case RC_HELP:
 		case RC_MUTE:
-			fcntl(rc, F_SETFL, O_NONBLOCK);
 			tuxtxt_cache.pageupdate = 1;
 			renderinfo.pagecatching = 0;
 			RCCode = -1;
@@ -2120,9 +2107,6 @@ void PageCatching()
 		tuxtxt_cache.subpage = subp;
 	else
 		tuxtxt_cache.subpage = 0;
-
-	/* reset to nonblocking mode */
-	fcntl(rc, F_SETFL, O_NONBLOCK);
 }
 
 /******************************************************************************
@@ -2730,16 +2714,34 @@ void UpdateLCD()
 #ifndef HAVE_TRIPLEDRAGON
 int GetRCCode()
 {
+	int maxfd = 0;
+	fd_set rset;
+	struct timeval timeout;
 #if HAVE_DVB_API_VERSION < 3
 	static unsigned short LastKey = -1;
 #else
 	struct input_event ev;
 	static __u16 rc_last_key = KEY_RESERVED;
 #endif
+	FD_ZERO(&rset);
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 100000;
 	/* get code */
-#if HAVE_DVB_API_VERSION < 3
-	if (read(rc, &RCCode, 2) == 2)
+	if (rc >= 0)
 	{
+		FD_SET(rc, &rset);
+		if (rc > maxfd)
+		{
+			maxfd = rc;
+		}
+	}
+	if (select(maxfd + 1, &rset, NULL, NULL, &timeout) > 0)
+	{
+		if (rc >= 0 && FD_ISSET(rc, &rset))
+		{
+#if HAVE_DVB_API_VERSION < 3
+			read(rc, &RCCode, 2);
+		}
 		if (RCCode != LastKey)
 		{
 			LastKey = RCCode;
@@ -2748,8 +2750,8 @@ int GetRCCode()
 			{
 				switch (RCCode)
 #else
-	if (read(rc, &ev, sizeof(ev)) == sizeof(ev))
-	{
+			read(rc, &ev, sizeof(ev));
+		}
 		if (ev.value)
 		{
 			if (ev.code != rc_last_key)
@@ -2807,7 +2809,6 @@ int GetRCCode()
 	}
 
 	RCCode = -1;
-	usleep(1000000/100);
 
 	return 0;
 }
