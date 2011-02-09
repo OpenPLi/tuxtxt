@@ -175,7 +175,7 @@ void dump_page()
  * plugin_exec                                                                *
  ******************************************************************************/
 
-int tuxtxt_run_ui(int pid)
+int tuxtxt_run_ui(int pid, int demux)
 {
 	char cvs_revision[] = "$Revision: 1.114 $";
 
@@ -185,6 +185,12 @@ int tuxtxt_run_ui(int pid)
 	int initialized = tuxtxt_init();
 	if ( initialized )
 		tuxtxt_cache.page = 0x100;
+#endif
+
+#if HAVE_DVB_API_VERSION < 3
+	snprintf(tuxtxt_cache.demux, 64, "/dev/dvb/card0/demux%d", demux);
+#else
+	snprintf(tuxtxt_cache.demux, 64, "/dev/dvb/adapter0/demux%d", demux);
 #endif
 
 	/* show versioninfo */
@@ -614,7 +620,7 @@ int Init()
 	tuxtxt_init_demuxer();
 	tuxtxt_start_thread();
 #else
-	tuxtxt_start(tuxtxt_cache.vtxtpid);
+	tuxtxt_start(tuxtxt_cache.vtxtpid, -1);
 #endif
 
 
@@ -1828,7 +1834,7 @@ void ConfigMenu(int Init)
 								tuxtxt_cache.vtxtpid = pid_table[current_pid].vtxt_pid;
 								tuxtxt_start_thread();
 #else
-								tuxtxt_start(pid_table[current_pid].vtxt_pid);
+								tuxtxt_start(pid_table[current_pid].vtxt_pid, -1);
 #endif
 							}
 //							tuxtxt_cache.pageupdate = 1;
