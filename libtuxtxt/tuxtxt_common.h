@@ -5566,6 +5566,7 @@ void tuxtxt_EndRendering(tstRenderInfo* renderinfo)
 	renderinfo->library = 0;
 	tuxtxt_ClearFB(renderinfo,renderinfo->previousbackcolor);
 	/* unmap framebuffer */
+	msync(renderinfo->lfb, renderinfo->fix_screeninfo.smem_len, MS_SYNC);
 	munmap(renderinfo->lfb, renderinfo->fix_screeninfo.smem_len);
 	printf("[TTX] Rendering ended\n");
 }
