@@ -4055,7 +4055,7 @@ void tuxtxt_FillBorder(tstRenderInfo* renderinfo, int color)
 	tuxtxt_FillRect(renderinfo->lfb,renderinfo->fix_screeninfo.line_length,renderinfo->StartX, ys+renderinfo->StartY+25*renderinfo->fontheight,renderinfo->displaywidth,renderinfo->var_screeninfo.yres-(renderinfo->StartY+25*renderinfo->fontheight),color);
 
 	if (renderinfo->screenmode == 0 )
-		tuxtxt_FillRect(renderinfo->lfb,renderinfo->fix_screeninfo.line_length,renderinfo->StartX+renderinfo->displaywidth, ys,renderinfo->fix_screeninfo.line_length-(renderinfo->StartX+renderinfo->displaywidth),renderinfo->var_screeninfo.yres   ,color);
+		tuxtxt_FillRect(renderinfo->lfb,renderinfo->fix_screeninfo.line_length,renderinfo->StartX+renderinfo->displaywidth - 1, ys,renderinfo->fix_screeninfo.line_length / 4 -(renderinfo->StartX+renderinfo->displaywidth - 1),renderinfo->var_screeninfo.yres   ,color);
 }
 
 
