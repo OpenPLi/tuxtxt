@@ -3314,8 +3314,107 @@ tstPageinfo* tuxtxt_DecodePage(int showl25, // 1=decode Level2.5-graphics
 	}
 	return pageinfo;
 }
+
+#ifdef HAVE_FRAMEBUFFER_ACCELERATION
+
+extern tstRenderInfo renderinfo;
+
+static int exec_list(unsigned int *displaylist, int len)
+{
+	int ret = -1;
+	struct
+	{
+		void *ptr;
+		int len;
+	} l;
+
+	l.ptr = displaylist;
+	l.len = len;
+	if (renderinfo.fb >= 0)
+	{
+#define FBIO_ACCEL  0x23
+		ret = ioctl(renderinfo.fb, FBIO_ACCEL, &l);
+	}
+	return ret;
+}
+
+#define P(x, y) do { displaylist[ptr++] = x; displaylist[ptr++] = y; } while (0)
+#define C(x) P(x, 0)
+
+int bcm_accel_fill(
+		int dst_addr, int dst_width, int dst_height, int dst_stride,
+		int x, int y, int width, int height,
+		unsigned long color)
+{
+	unsigned int displaylist[1024];
+	int ptr = 0;
+
+	C(0x43); // reset source
+	C(0x53); // reset dest
+	C(0x5b); // reset pattern
+	C(0x67); // reset blend
+	C(0x75); // reset output
+
+	// clear dest surface
+	P(0x0, 0);
+	P(0x1, 0);
+	P(0x2, 0);
+	P(0x3, 0);
+	P(0x4, 0);
+	C(0x45);
+
+	// clear src surface
+	P(0x0, 0);
+	P(0x1, 0);
+	P(0x2, 0);
+	P(0x3, 0);
+	P(0x4, 0);
+	C(0x5);
+
+	P(0x2d, color);
+
+	P(0x2e, x); // prepare output rect
+	P(0x2f, y);
+	P(0x30, width);
+	P(0x31, height);
+	C(0x6e); // set this rect as output rect
+
+	P(0x0, dst_addr); // prepare output surface
+	P(0x1, dst_stride);
+	P(0x2, dst_width);
+	P(0x3, dst_height);
+	P(0x4, 0x7e48888);
+	C(0x69); // set output surface
+
+	P(0x6f, 0);
+	P(0x70, 0);
+	P(0x71, 2);
+	P(0x72, 2);
+	C(0x73); // select color keying
+
+	C(0x77);  // do it
+
+	return exec_list(displaylist, ptr);
+}
+#endif
+
 void tuxtxt_FillRect(unsigned char *lfb, int xres, int x, int y, int w, int h, int color)
 {
+#ifdef HAVE_FRAMEBUFFER_ACCELERATION
+	/* accelerated fill has too much overhead for small areas */
+	if (w > 16 && h > 16)
+	{
+		unsigned long color32;
+		memcpy(&color32, bgra[color], 4);
+		if (bcm_accel_fill(
+			(unsigned int)renderinfo.fix_screeninfo.smem_start, renderinfo.var_screeninfo.xres, renderinfo.var_screeninfo.yres, xres, /* xres is actually line_length (aka stride) */
+			x, y, w, h,
+			color32) >= 0)
+		{
+			return;
+		}
+	}
+#endif
 	if (!lfb) return;
 	unsigned char *p = lfb + x*4 + y * xres;
 	unsigned char linebuf[w * 4];
@@ -5569,8 +5668,10 @@ void tuxtxt_EndRendering(tstRenderInfo* renderinfo)
 	 * is probably quicker than a pixel-by-pixel clear loop.
 	 * This works because we no longer need to worry about the backbuffer,
 	 * we can simply clear the entire framebuffer area, the full mmap size.
+	 *
+	 * However, on accelerated framebuffers, tuxtxt_ClearFB should still be faster.
 	 */
-#if 0
+#ifdef HAVE_FRAMEBUFFER_ACCELERATION
 	tuxtxt_ClearFB(renderinfo,renderinfo->previousbackcolor);
 #else
 	memset(renderinfo->lfb, 0, renderinfo->fix_screeninfo.smem_len);
