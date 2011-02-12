@@ -5564,7 +5564,17 @@ void tuxtxt_EndRendering(tstRenderInfo* renderinfo)
 		FT_Done_FreeType(renderinfo->library);
 	renderinfo->manager = 0;
 	renderinfo->library = 0;
+	/*
+	 * To leave a 'clean' framebuffer on exit, a memset of the entire area
+	 * is probably quicker than a pixel-by-pixel clear loop.
+	 * This works because we no longer need to worry about the backbuffer,
+	 * we can simply clear the entire framebuffer area, the full mmap size.
+	 */
+#if 0
 	tuxtxt_ClearFB(renderinfo,renderinfo->previousbackcolor);
+#else
+	memset(renderinfo->lfb, 0, renderinfo->fix_screeninfo.smem_len);
+#endif
 	/* unmap framebuffer */
 	msync(renderinfo->lfb, renderinfo->fix_screeninfo.smem_len, MS_SYNC);
 	munmap(renderinfo->lfb, renderinfo->fix_screeninfo.smem_len);
