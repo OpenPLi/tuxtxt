@@ -241,12 +241,19 @@ int tuxtxt_run_ui(int pid, int demux)
 		return -1;
 	}
 
+#ifdef HAVE_TEXTLCD
+	printf("Tuxtxt - TEXT LCD MODE\n");
+	if ((lcd=open("/dev/dbox/oled0", O_RDWR)) == -1)
+	{
+		printf("Tuxtxt - Failed to open text VFD\n");
+	}
+#else
 	/* open LCD  */
 	if ((lcd=open("/dev/dbox/lcd0", O_RDWR)) == -1)
 	{
 		perror("TuxTxt <open /dev/dbox/lcd0>");
 	}
-
+#endif
 	renderinfo.previousbackcolor = tuxtxt_color_transp;
 	renderinfo.zoommode = 0;
 	renderinfo.sx = 80;
@@ -2494,6 +2501,16 @@ void SwitchHintMode()
 
 void RenderCharLCD(int Digit, int XPos, int YPos)
 {
+#ifdef HAVE_TEXTLCD
+	static const char digits[] = {'0','1','2','3','4','5','6','7','8','9','-','/','?',' '};
+	if (Digit < sizeof(digits)) // sanity
+	{
+		if (YPos == 0)
+		{
+			lcd_backbuffer[XPos] = digits[Digit];
+		}
+	}
+#else
 	int x, y;
 
 	if (lcd < 0) return;
@@ -2509,6 +2526,7 @@ void RenderCharLCD(int Digit, int XPos, int YPos)
 				lcd_backbuffer[XPos + x + ((YPos+y)/8)*120] &= ~(1 << ((YPos+y)%8));
 		}
 	}
+#endif
 }
 
 #if 0
@@ -2665,7 +2683,10 @@ void UpdateLCD()
 	if (init_lcd)
 	{
 		init_lcd = 0;
-
+#ifdef HAVE_TEXTLCD
+		memcpy(lcd_backbuffer, "xxx-xx/xx        ", 16);
+		write(lcd, &lcd_backbuffer, 12);
+#else
 		for (y = 0; y < 64; y++)
 		{
 			int lcdbase = (y/8)*120;
@@ -2709,6 +2730,7 @@ void UpdateLCD()
 		RenderCharLCD(10, 43, 20);
 		RenderCharLCD(11, 79, 20);
 
+#endif
 		return;
 	}
 	else
@@ -2723,10 +2745,15 @@ void UpdateLCD()
 		/* page */
 		if (old_page != p)
 		{
+#ifdef HAVE_TEXTLCD
+			RenderCharLCD(p>>8,  0, 0);
+			RenderCharLCD((p&0x0F0)>>4, 1, 0);
+			RenderCharLCD(p&0x00F, 2, 0);
+#else
 			RenderCharLCD(p>>8,  7, 20);
 			RenderCharLCD((p&0x0F0)>>4, 19, 20);
 			RenderCharLCD(p&0x00F, 31, 20);
-
+#endif
 			old_page = p;
 			update_lcd = 1;
 		}
@@ -2736,8 +2763,13 @@ void UpdateLCD()
 		{
 			if (!tuxtxt_cache.subpage)
 			{
+#ifdef HAVE_TEXTLCD
+				RenderCharLCD(0, 4, 0);
+				RenderCharLCD(1, 5, 0);
+#else
 				RenderCharLCD(0, 55, 20);
 				RenderCharLCD(1, 67, 20);
+#endif
 			}
 			else
 			{
@@ -2746,8 +2778,13 @@ void UpdateLCD()
 				else if (tuxtxt_cache.subpage > 99)
 					tuxtxt_cache.subpage = 0;
 
+#ifdef HAVE_TEXTLCD
+				RenderCharLCD(tuxtxt_cache.subpage>>4, 4, 0);
+				RenderCharLCD(tuxtxt_cache.subpage&0x0F, 5, 0);
+#else
 				RenderCharLCD(tuxtxt_cache.subpage>>4, 55, 20);
 				RenderCharLCD(tuxtxt_cache.subpage&0x0F, 67, 20);
+#endif
 			}
 
 			old_subpage = tuxtxt_cache.subpage;
@@ -2765,19 +2802,29 @@ void UpdateLCD()
 		{
 			if (!subpage_max)
 			{
+#ifdef HAVE_TEXTLCD
+				RenderCharLCD(0, 7, 0);
+				RenderCharLCD(1, 8, 0);
+#else
 				RenderCharLCD(0,  91, 20);
 				RenderCharLCD(1, 103, 20);
+#endif
 			}
 			else
 			{
+#ifdef HAVE_TEXTLCD
+				RenderCharLCD(subpage_max>>4, 7, 0);
+				RenderCharLCD(subpage_max&0x0F, 8, 0);
+#else
 				RenderCharLCD(subpage_max>>4,  91, 20);
 				RenderCharLCD(subpage_max&0x0F, 103, 20);
+#endif
 			}
 
 			old_subpage_max = subpage_max;
 			update_lcd = 1;
 		}
-
+#ifndef HAVE_TEXTLCD
 		/* cachestatus */
 		if (old_cached_pages != tuxtxt_cache.cached_pages)
 		{
@@ -2815,13 +2862,18 @@ void UpdateLCD()
 			old_hintmode = renderinfo.hintmode;
 			update_lcd = 1;
 		}
+#endif
 	}
 
 	if (update_lcd)
 #ifdef HAVE_TRIPLEDRAGON
 		dbox2_to_tdLCD(lcd, lcd_backbuffer);
 #else
+#	ifdef HAVE_TEXTLCD
+		write(lcd, &lcd_backbuffer, 12);
+#	else
 		write(lcd, &lcd_backbuffer, sizeof(lcd_backbuffer));
+#	endif
 #endif
 }
 
