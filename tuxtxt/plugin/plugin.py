@@ -1,5 +1,4 @@
-from enigma import eTuxtxtApp, eTimer
-from enigma import eConsoleAppContainer, iServiceInformation, fbClass, eRCInput, eDBoxLCD
+from enigma import eConsoleAppContainer, iServiceInformation, fbClass, eRCInput, eDBoxLCD, eTuxtxtApp, eTimer
 from Screens.Screen import Screen
 from Plugins.Plugin import PluginDescriptor
 from Components.Renderer.Picon import reloadPicons
@@ -24,10 +23,7 @@ class ShellStarter(Screen):
 		else:
 			self.timer.stop()
 			reloadPicons()
-			self.finished()
-
-	def finished(self):
-		self.close()
+			self.close()
 
 def main(session, **kwargs):
 	session.open(ShellStarter)
