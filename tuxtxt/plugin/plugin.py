@@ -23,8 +23,6 @@ class ShellStarter(Screen):
 		self.timer.start(1000)
 
 	def pollUIRunning(self):
-		a = eTuxtxtApp.getInstance().getTuxtxtUIRunning()
-		print a
 		if eTuxtxtApp.getInstance().getTuxtxtUIRunning()[0] == 1:
 			self.timer.start(1000)
 		else:
