@@ -2,7 +2,6 @@ from enigma import eTuxtxtApp, eTimer
 from Screens.Screen import Screen
 from Plugins.Plugin import PluginDescriptor
 from Components.Renderer.Picon import reloadPicons
-from os import symlink, mkdir, remove, rmdir, path
 
 class ShellStarter(Screen):
 	skin = """
