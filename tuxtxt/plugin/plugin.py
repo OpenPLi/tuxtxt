@@ -1,4 +1,4 @@
-from enigma import eConsoleAppContainer, iServiceInformation, fbClass, eRCInput, eDBoxLCD, eTuxtxtApp, eTimer
+from enigma import eTuxtxtApp, eTimer
 from Screens.Screen import Screen
 from Plugins.Plugin import PluginDescriptor
 from Components.Renderer.Picon import reloadPicons
