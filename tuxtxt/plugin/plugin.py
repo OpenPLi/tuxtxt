@@ -13,8 +13,6 @@ class ShellStarter(Screen):
 	def __init__(self, session, args = None):
 		self.skin = ShellStarter.skin
 		Screen.__init__(self, session)
-		self.container=eConsoleAppContainer()
-		self.container.appClosed.append(self.finished)
 		self.timer = eTimer()
 		self.timer.callback.append(self.pollUIRunning)
 		self.runapp()
