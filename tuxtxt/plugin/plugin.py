@@ -24,9 +24,9 @@ class ShellStarter(Screen):
 		else:
 			self.timer.stop()
 			reloadPicons()
-			self.finished(-1)
+			self.finished()
 
-	def finished(self,retval):
+	def finished(self):
 		self.close()
 
 def main(session, **kwargs):
