@@ -15,11 +15,7 @@ class ShellStarter(Screen):
 		Screen.__init__(self, session)
 		self.timer = eTimer()
 		self.timer.callback.append(self.pollUIRunning)
-		self.runapp()
-
-	def runapp(self):
 		eTuxtxtApp.getInstance().startUi()
-		print eTuxtxtApp.getInstance().getTuxtxtUIRunning()
 		self.timer.start(1000)
 
 	def pollUIRunning(self):
