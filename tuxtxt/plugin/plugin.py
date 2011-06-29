@@ -1,7 +1,6 @@
 from enigma import eTuxtxtApp, getDesktop
 from Screens.Screen import Screen
 from Plugins.Plugin import PluginDescriptor
-from Components.Renderer.Picon import reloadPicons
 
 class ShellStarter(Screen):
 	skin = """
@@ -15,7 +14,6 @@ class ShellStarter(Screen):
 		eTuxtxtApp.getInstance().startUi()
 
 	def appClosed(self):
-		reloadPicons()
 		eTuxtxtApp.getInstance().appClosed.get().remove(self.appClosed)
 		#force redraw
 		dsk = getDesktop(0)
