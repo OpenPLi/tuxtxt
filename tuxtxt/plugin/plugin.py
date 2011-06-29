@@ -1,4 +1,4 @@
-from enigma import eTuxtxtApp, eTimer
+from enigma import eTuxtxtApp, getDesktop
 from Screens.Screen import Screen
 from Plugins.Plugin import PluginDescriptor
 from Components.Renderer.Picon import reloadPicons
@@ -6,23 +6,21 @@ from Components.Renderer.Picon import reloadPicons
 class ShellStarter(Screen):
 	skin = """
 		<screen position="1,1" size="1,1" title="TuxTXT" >
-                </screen>"""
+		</screen>"""
 
 	def __init__(self, session, args = None):
 		self.skin = ShellStarter.skin
 		Screen.__init__(self, session)
-		self.timer = eTimer()
-		self.timer.callback.append(self.pollUIRunning)
+		eTuxtxtApp.getInstance().appClosed.get().append(self.appClosed)
 		eTuxtxtApp.getInstance().startUi()
-		self.timer.start(1000)
 
-	def pollUIRunning(self):
-		if eTuxtxtApp.getInstance().getTuxtxtUIRunning()[0] == 1:
-			self.timer.start(1000)
-		else:
-			self.timer.stop()
-			reloadPicons()
-			self.close()
+	def appClosed(self):
+		reloadPicons()
+		eTuxtxtApp.getInstance().appClosed.get().remove(self.appClosed)
+		#force redraw
+		dsk = getDesktop(0)
+		dsk.resize(dsk.size())
+		self.close()
 
 def main(session, **kwargs):
 	session.open(ShellStarter)
