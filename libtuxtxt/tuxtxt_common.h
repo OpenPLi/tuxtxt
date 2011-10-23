@@ -4115,6 +4115,9 @@ int tuxtxt_toptext_getnext(int startpage, int up, int findgroup)
 	nextgrp = nextblk = 0;
 	current = startpage;
 
+	/* avoid endless loop when startpage/stoppage are zero */
+	if (!stoppage) return startpage;
+
 	do {
 		if (up)
 			tuxtxt_next_dec(&current);
