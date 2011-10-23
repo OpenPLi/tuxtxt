@@ -111,6 +111,7 @@ int tuxtxt_start(int tpid, int demux)
 	}
 	else if (!tuxtxt_cache.thread_starting && !tuxtxt_cache.receiving)
 	{
+		tuxtxt_cache.page = 0x100;
 		if (demux >= 0)
 		{
 #if HAVE_DVB_API_VERSION < 3
