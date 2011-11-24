@@ -4577,9 +4577,9 @@ void tuxtxt_SwitchScreenMode(tstRenderInfo* renderinfo,int newscreenmode)
 	{
 		// Video picture scale/pos for e2
 		int i;
-		for (i=0; i<4; ++i)
+		for (i=0; i<5; ++i)
 		{
-			char *targets[]={"left", "top", "width", "height"};
+			char *targets[]={"left", "top", "width", "height", "apply"};
 			char filename[128];
 			snprintf(filename, 128, "/proc/stb/vmpeg/%d/dst_%s", 0, targets[i]);
 			FILE *f = fopen(filename, "w");
