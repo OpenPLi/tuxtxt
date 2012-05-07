@@ -26,7 +26,6 @@
 #include <dbox/avia_gt_pig.h>
 #else
 #include <linux/input.h>
-#include <linux/videodev.h>
 #endif
 #else
 #include <tdgfx/stb04gfx.h>
@@ -4477,9 +4476,6 @@ void tuxtxt_RenderClearMenuLineBB(tstRenderInfo* renderinfo,char *p, tstPageAttr
 
 void tuxtxt_SwitchScreenMode(tstRenderInfo* renderinfo,int newscreenmode)
 {
-#if HAVE_DVB_API_VERSION >= 3 && !defined(HAVE_TRIPLEDRAGON)
-	struct v4l2_format format;
-#endif
 	/* reset transparency mode */
 	if (renderinfo->transpmode)
 		renderinfo->transpmode = 0;
