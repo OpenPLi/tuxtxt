@@ -321,42 +321,6 @@ int tuxtxt_run_ui(int pid, int demux)
 
 				case RC_HELP: /* switch to scart input and back */
 				{
-#ifdef HAVE_DBOX_HARDWARE
-					int i, n;
-					int vendor = tuxbox_get_vendor() - 1;
-					if (vendor < 3) /* scart-parameters only known for 3 dboxes, FIXME: order must be like in info.h */
-					{
-						for (i = 0; i < 6; i++) /* FIXME: FBLK seems to cause troubles */
-						{
-							if (!restoreaudio || !(i & 1)) /* not for audio if scart-audio active */
-							{
-								if ((ioctl(renderinfo.avs, avstable_ioctl_get[i], &n)) < 0) /* get current values for restoration */
-									perror("TuxTxt <ioctl(avs)>");
-								else
-									avstable_dvb[vendor][i] = n;
-							}
-
-							n = avstable_scart[vendor][i];
-							if ((ioctl(renderinfo.avs, avstable_ioctl[i], &n)) < 0)
-								perror("TuxTxt <ioctl(avs)>");
-						}
-
-						while (GetRCCode() != 1) /* wait for any key */
-							UpdateLCD();
-
-						if (RCCode == RC_HELP)
-							restoreaudio = 1;
-						else
-							restoreaudio = 0;
-
-						for (i = 0; i < 6; i += (restoreaudio ? 2 : 1)) /* exit with ?: just restore video, leave audio */
-						{
-							n = avstable_dvb[vendor][i];
-							if ((ioctl(renderinfo.avs, avstable_ioctl[i], &n)) < 0)
-								perror("TuxTxt <ioctl(avs)>");
-						}
-					}
-#endif
 					continue; /* otherwise ignore exit key */
 				}
 				default:
@@ -635,11 +599,6 @@ int Init()
 
 	readproc("/proc/stb/avs/0/sb", saved_pin8);
 	writeproc("/proc/stb/avs/0/sb", fncmodes[renderinfo.screen_mode1]);
-
-	/* setup rc */
-	if (rc[0] >= 0) ioctl(rc[0], RC_IOCTL_BCODES, 1);
-	if (rc[1] >= 0) ioctl(rc[1], RC_IOCTL_BCODES, 1);
-
 
 	gethotlist();
 	tuxtxt_SwitchScreenMode(&renderinfo,renderinfo.screenmode);
@@ -983,17 +942,17 @@ skip_pid:
 
 					for (byte = 0; byte < pid_table[pid_test].service_name_len; byte++)
 					{
-						if (buf[sdt_scan+10 + buf[sdt_scan + 8] + byte] == (unsigned char)'Ä')
+						if (buf[sdt_scan+10 + buf[sdt_scan + 8] + byte] == (unsigned char)'?')
 							buf[sdt_scan+10 + buf[sdt_scan + 8] + byte] = 0x5B;
 						if (buf[sdt_scan+10 + buf[sdt_scan + 8] + byte] == (unsigned char)'ä')
 							buf[sdt_scan+10 + buf[sdt_scan + 8] + byte] = 0x7B;
-						if (buf[sdt_scan+10 + buf[sdt_scan + 8] + byte] == (unsigned char)'Ö')
+						if (buf[sdt_scan+10 + buf[sdt_scan + 8] + byte] == (unsigned char)'?')
 							buf[sdt_scan+10 + buf[sdt_scan + 8] + byte] = 0x5C;
 						if (buf[sdt_scan+10 + buf[sdt_scan + 8] + byte] == (unsigned char)'ö')
 							buf[sdt_scan+10 + buf[sdt_scan + 8] + byte] = 0x7C;
-						if (buf[sdt_scan+10 + buf[sdt_scan + 8] + byte] == (unsigned char)'Ü')
+						if (buf[sdt_scan+10 + buf[sdt_scan + 8] + byte] == (unsigned char)'?')
 							buf[sdt_scan+10 + buf[sdt_scan + 8] + byte] = 0x5D;
-						if (buf[sdt_scan+10 + buf[sdt_scan + 8] + byte] == (unsigned char)'ü')
+						if (buf[sdt_scan+10 + buf[sdt_scan + 8] + byte] == (unsigned char)'?')
 							buf[sdt_scan+10 + buf[sdt_scan + 8] + byte] = 0x7D;
 						if (buf[sdt_scan+10 + buf[sdt_scan + 8] + byte] == (unsigned char)'ß')
 							buf[sdt_scan+10 + buf[sdt_scan + 8] + byte] = 0x7E;

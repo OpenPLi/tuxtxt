@@ -21,15 +21,7 @@
 #include <zlib.h>
 #endif
 
-#ifndef HAVE_TRIPLEDRAGON
-#if HAVE_DVB_API_VERSION < 3
-#include <dbox/avia_gt_pig.h>
-#else
 #include <linux/input.h>
-#endif
-#else
-#include <tdgfx/stb04gfx.h>
-#endif
 
 const char *ObjectSource[] =
 {
@@ -5619,18 +5611,6 @@ int tuxtxt_InitRendering(tstRenderInfo* renderinfo,int setTVFormat)
 void tuxtxt_EndRendering(tstRenderInfo* renderinfo)
 {
 	int i;
-#ifndef HAVE_TRIPLEDRAGON
-	if (renderinfo->pig >= 0)
-		close(renderinfo->pig);
-	renderinfo->pig = -1;
-	/* restore videoformat */
-	if (renderinfo->avs >= 0)
-		ioctl(renderinfo->avs, AVSIOSSCARTPIN8, &renderinfo->fnc_old);
-	if (renderinfo->saa >= 0)
-		ioctl(renderinfo->saa, SAAIOSWSS, &renderinfo->saa_old);
-#else
-	system("pzapit --pig 0 0 0 0 0");
-#endif
 	/* clear subtitlecache */
 	for (i = 0; i < SUBTITLE_CACHESIZE; i++)
 	{

@@ -48,11 +48,6 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 
-#ifndef HAVE_TRIPLEDRAGON
-#include <dbox/fp.h>
-#include <dbox/lcd-ks0713.h>
-#endif
-
 #include "tuxtxt_def.h"
 
 
@@ -239,30 +234,6 @@ struct _pid_table
 }pid_table[128];
 
 unsigned char restoreaudio = 0;
-#ifndef HAVE_TRIPLEDRAGON
-/* 0 Nokia, 1 Philips, 2 Sagem */
-/* typ_vcr/dvb: 	v1 a1 v2 a2 v3 a3 (vcr_only: fblk) */
-const int avstable_ioctl[7] =
-{
-	AVSIOSVSW1, AVSIOSASW1, AVSIOSVSW2, AVSIOSASW2, AVSIOSVSW3, AVSIOSASW3, AVSIOSFBLK
-};
-const int avstable_ioctl_get[7] =
-{
-	AVSIOGVSW1, AVSIOGASW1, AVSIOGVSW2, AVSIOGASW2, AVSIOGVSW3, AVSIOGASW3, AVSIOGFBLK
-};
-const unsigned char avstable_scart[3][7] =
-{
-	{ 3, 2, 1, 0, 1, 1, 2 },
-	{ 3, 3, 2, 2, 3, 2, 2 },
-	{ 2, 1, 0, 0, 0, 0, 0 },
-};
-unsigned char avstable_dvb[3][7] =
-{
-	{ 5, 1, 1, 0, 1, 1, 0 },
-	{ 1, 1, 1, 1, 1, 1, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0 },
-};
-#endif
 
 /* language dependent texts */
 #define MAXMENULANGUAGE 10 /* 0 deutsch, 1 englisch, 2 französisch, 3 niederländisch, 4 griechisch, 5 italienisch, 6 polnisch, 7 schwedisch, 8 suomi, 9 portuguesa, 10 russian */

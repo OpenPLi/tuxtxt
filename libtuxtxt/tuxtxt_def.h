@@ -37,11 +37,6 @@
 #include FT_CACHE_SMALL_BITMAPS_H
 #include <linux/fb.h>
 
-#ifndef HAVE_TRIPLEDRAGON
-#include <dbox/avs_core.h>
-#include <dbox/saa7126_core.h>
-#endif
-
 #define FLOFSIZE 4
 
 #define PAGESIZE (40*25)
