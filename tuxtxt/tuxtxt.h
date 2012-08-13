@@ -174,7 +174,7 @@ extern void tuxtxt_SwitchScreenMode(tstRenderInfo* renderinfo,int newscreenmode)
 /* national subsets */
 const char countrystring[] =
 "         Default          "   /*  0 no subset specified */
-"       Czech/Slovak       "   /*  1 czech, slovak */
+"       Cesky/Slovensky    "   /*  1 czech, slovak */
 "         English          "   /*  2 english */
 "         Estonian         "   /*  3 estonian */
 "          French          "   /*  4 french */
@@ -236,8 +236,8 @@ struct _pid_table
 unsigned char restoreaudio = 0;
 
 /* language dependent texts */
-#define MAXMENULANGUAGE 10 /* 0 deutsch, 1 englisch, 2 franzצsisch, 3 niederlהndisch, 4 griechisch, 5 italienisch, 6 polnisch, 7 schwedisch, 8 suomi, 9 portuguesa, 10 russian */
-const int menusubset[] =   { NAT_DE   , NAT_UK    , NAT_FR       , NAT_UK          , NAT_GR      , NAT_IT       , NAT_PL    , NAT_SW      , NAT_SW ,   NAT_SP,      NAT_RB};
+#define MAXMENULANGUAGE 11 /* 0 deutsch, 1 englisch, 2 franzצsisch, 3 niederlהndisch, 4 griechisch, 5 italienisch, 6 polnisch, 7 schwedisch, 8 suomi, 9 portuguesa, 10 russian, 11 czech */
+const int menusubset[] =   { NAT_DE   , NAT_UK    , NAT_FR       , NAT_UK          , NAT_GR      , NAT_IT       , NAT_PL    , NAT_SW      , NAT_SW ,   NAT_SP,      NAT_RB,	NAT_CZ};
 
 
 #define Menu_StartX (renderinfo.StartX + renderinfo.fontwidth*9/2)
@@ -269,11 +269,11 @@ enum
 
 const char hotlistpagecolumn[] =	/* last(!) column of page to show in each language */
 {
-	22, 26, 28, 27, 28, 27, 28, 21, 20, 26, 26
+	22, 26, 28, 27, 28, 27, 28, 21, 20, 26, 26, 26
 };
 const char hotlisttextcolumn[] =
 {
-	24, 14, 14, 15, 14, 15, 14, 23, 22, 14, 14
+	24, 14, 14, 15, 14, 15, 14, 23, 22, 14, 14, 12
 };
 const char hotlisttext[][2*5] =
 {
@@ -287,7 +287,8 @@ const char hotlisttext[][2*5] =
 	{ "ny   bort " },
 	{ "lis{{pois " },
 	{ " adi rem. " },
-	{ "Dob. Udal." },	
+	{ "Dob. Udal." },
+	{ " p_id smaz" },
 };
 
 const char configonoff[][2*3] =
@@ -303,6 +304,7 @@ const char configonoff[][2*3] =
 	{ "EI ON " },
 	{ "offon " },
 	{ "w&kwkl" },
+	{ "vypzap" },
 };
 const char menuatr[Menu_Height*Menu_Width] =
 {
@@ -641,6 +643,34 @@ const char configmenu[][Menu_Height*Menu_Width] =
 		"וז   www.tuxtxt.net  x.xx   זחי"
 		"כלללללללללללללללללללללללללללללך"
 	},
+	/*       0000000000111111111122222222223 */
+	/*       0123456789012345678901234567890 */
+	{
+		"אבבבבבבבבבבבבבבבבבבבבבבבבבבבבגט"
+		"ד     Konfigura@n^ menu      הי"
+		"וזזזזזזזזזזזזזזזזזזזזזזזזזזזזחי"
+		"ד1 Obl^ben`: p_id. str. 111  הי"
+		"דםמסע                        הי"
+		"ד+-?                         הי"
+		"ד                            הי"
+		"ד2      V]b|r teletextu      הי"
+		"דם          vyhledat        מהי"
+		"ד                            הי"
+		"ד        Form{t obrazu       הי"
+		"ד3 Standardn^ mod 16:9       הי"
+		"ד4 Text/TV mod    16:9       הי"
+		"ד                            הי"
+		"ד5           Jas             הי"
+		"דם                          מהי"
+		"ד6       Pr$hlednost         הי"
+		"דם                          מהי"
+		"ד7 nastaven^ n{rodn^ch znak$ הי"
+		"ד  automaticky rozezn{vat    הי"
+		"דם                          מהי"
+		"דם  Jazyk/_e@:     @e~tina  מהי"
+		"וז   www.tuxtxt.net  x.xx   זחי"
+		"כלללללללללללללללללללללללללללללך"
+	},
 };
 
 const char catchmenutext[][80] =
@@ -667,6 +697,8 @@ const char catchmenutext[][80] =
 	  "0000000011110000000000110000000000000000" },
 	{ "        םןנמ w&bratx  סע pokazatx       "
 	  "0000000011110000000000110000000000000000" },
+	{ "        םןנמ vybrat   סע zobrazit       "
+	  "0000000011110000000000110000000000000000" },
 };
 
 const char message_3[][38] =
@@ -682,6 +714,7 @@ const char message_3[][38] =
 	{ "ד   etsit{{n Teksti-TV -palvelua    הי" },
 	{ "ד  Procurar servicos de teletexto   הי" },
 	{ "ד   W&polnqetsq poisk teleteksta    הי" },
+	{ "ד   Vyhled{v{ se teletext programu  הי" },
 };
 const char message_3_blank[] = "ד                                   הי";
 const char message_7[][38] =
@@ -696,7 +729,8 @@ const char message_7[][38] =
 	{ "ד ingen TextTV p} denna transponder הי" },
 	{ "ד    Ei Teksti-TV:t{ l{hettimell{   הי" },
 	{ "ד  nao ha teletexto no transponder  הי" },
-	{ "ד  Na transpondere net teleteksta   הי" },	
+	{ "ד  Na transpondere net teleteksta   הי" },
+	{ "ד  Transponder neobsahuje teletext  הי" },
 };
 const char message_8[][38] =
 {
@@ -712,11 +746,12 @@ const char message_8[][38] =
 	{ "ד  v{ntar p} mottagning av sida 100 הי" },
 	{ "ד        Odotetaan sivua 100        הי" },
 	{ "ד   esperando recepcao na pag 100   הי" },
-	{ "ד   Ovidanie priema stranic& 100    הי" },	
+	{ "ד   Ovidanie priema stranic& 100    הי" },
+	{ "ד Cek{ se na zobrazen^ str{nky 100  הי" },
 };
 const char message8pagecolumn[] = /* last(!) column of page to show in each language */
 {
-	33, 34, 34, 35, 29, 30, 30, 34, 34, 32, 34
+	33, 34, 34, 35, 29, 30, 30, 34, 34, 32, 34, 33
 };
 
 
