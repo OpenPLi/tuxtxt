@@ -2196,13 +2196,12 @@ int tuxtxt_eval_triplet(int iOData, tstCachedPage *pstCachedPage,
 		default:
 			if (iMode == 0x10 && iData == 0x2a)
 				iData = '@';
-			if (iMode >= 0x10)
+			if (iMode >= 0x10 && page_char[offset] == iData)
 			{
 #if TUXTXT_DEBUG
 				if (dumpl25)
 					printf("  ,%02d G0 #%02x %c +diacr. %x", iAddress, iData, iData, iMode & 0x0f);
 #endif
-				page_char[offset] = iData;
 				if (*endcol < 0) /* passive object */
 				{
 					attrPassive->charset = C_G0P;
