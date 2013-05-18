@@ -2920,11 +2920,15 @@ int GetRCCode()
 				case KEY_GREEN:		RCCode = RC_GREEN;	break;
 				case KEY_YELLOW:	RCCode = RC_YELLOW;	break;
 				case KEY_BLUE:		RCCode = RC_BLUE;	break;
+				case KEY_NEXT:
 				case KEY_VOLUMEUP:	RCCode = RC_PLUS;	break;
+				case KEY_PREVIOUS:
 				case KEY_VOLUMEDOWN:	RCCode = RC_MINUS;	break;
+				case KEY_FILE:
 				case KEY_MUTE:		RCCode = RC_MUTE;	break;
 				case KEY_HELP:		RCCode = RC_HELP;	break;
 				case KEY_MENU:		RCCode = RC_DBOX;	break;
+				case KEY_TEXT:
 				case KEY_EXIT:		RCCode = RC_HOME;	break;
 				case KEY_POWER:		RCCode = RC_STANDBY;	break;
 				default:			RCCode = -1;		break;
