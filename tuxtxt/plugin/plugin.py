@@ -1,19 +1,19 @@
 from enigma import eTuxtxtApp, getDesktop
 from Screens.Screen import Screen
 from Plugins.Plugin import PluginDescriptor
+from Screens.InfoBar import InfoBar
 
 class ShellStarter(Screen):
 	skin = """
 		<screen position="1,1" size="1,1" title="TuxTXT" >
 		</screen>"""
 
-	def __init__(self, session, infobar):
+	def __init__(self, session, args = None):
 		self.skin = ShellStarter.skin
 		Screen.__init__(self, session)
-		self.infobar = infobar
-		self.subtitle = infobar and infobar.selected_subtitle
+		self.subtitle = InfoBar.instance.selected_subtitle
 		if self.subtitle:
-			infobar.enableSubtitle(None)
+			InfoBar.instance.enableSubtitle(None)
 		eTuxtxtApp.getInstance().appClosed.get().append(self.appClosed)
 		eTuxtxtApp.getInstance().startUi()
 
@@ -23,11 +23,11 @@ class ShellStarter(Screen):
 		dsk = getDesktop(0)
 		dsk.resize(dsk.size())
 		if self.subtitle:
-			self.infobar.enableSubtitle(self.subtitle)
+			InfoBar.instance.enableSubtitle(self.subtitle)
 		self.close()
 
-def main(session, infobar=None, **kwargs):
-	session.open(ShellStarter, infobar)
+def main(session, **kwargs):
+	session.open(ShellStarter)
 
 def Plugins(**kwargs):
 	return PluginDescriptor(name="TuxTXT", description="Videotext", where = PluginDescriptor.WHERE_TELETEXT, fnc=main)
