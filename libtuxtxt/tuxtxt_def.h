@@ -75,6 +75,12 @@
 #define hold_mosaic         0x1E
 #define release_mosaic      0x1F
 
+#define QUEUE_SIZE 10
+
+int tuxtxt_queue_head = -1;
+int tuxtxt_queue_tail = -1;
+int tuxtxt_pressed_keys_queue[QUEUE_SIZE];
+
 extern unsigned char bgra[][4];
 
 const char * fncmodes[] = {"12", "6"};

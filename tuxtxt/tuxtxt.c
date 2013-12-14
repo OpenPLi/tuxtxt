@@ -2841,6 +2841,19 @@ void UpdateLCD()
  * GetRCCode                                                                  *
  ******************************************************************************/
 #ifndef HAVE_TRIPLEDRAGON
+#if TUXTXT_PLUGIN_KEY_HANDLING
+int GetRCCode()
+{
+	int pressedKey = tuxtxt_getPressedKey();
+	if (pressedKey > -1)
+	{
+		RCCode = pressedKey;
+		return 1;
+	}
+	RCCode = -1;
+	return 0;
+}
+#else
 int GetRCCode()
 {
 	int maxfd = 0;
@@ -2958,6 +2971,7 @@ int GetRCCode()
 
 	return 0;
 }
+#endif
 #else /* tripledragon */
 int GetRCCode()
 {

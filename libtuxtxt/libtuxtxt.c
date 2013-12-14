@@ -45,6 +45,7 @@
 
 static int tuxtxt_initialized=0;
 static pthread_mutex_t tuxtxt_control_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+static pthread_mutex_t tuxtxt_key_queue_lock = PTHREAD_MUTEX_INITIALIZER;
 
 int tuxtxt_init()
 {
@@ -566,6 +567,34 @@ void tuxtxt_RenderHTML(tstHTML* pHTML,
 		if (pHTML->row == 24)
 			strcat(result,"</table>\n");
 	}
+}
+// stores pressed key in a queue
+void tuxtxt_handlePressedKey(int key)
+{
+	pthread_mutex_lock(&tuxtxt_key_queue_lock);
+	if ((tuxtxt_queue_tail - QUEUE_SIZE) == tuxtxt_queue_head)
+		printf("TuxTxt: Key queue is full!\n");
+	else
+	{
+		tuxtxt_queue_tail++;
+		tuxtxt_pressed_keys_queue[tuxtxt_queue_tail % QUEUE_SIZE] = key;
+	}
+	pthread_mutex_unlock(&tuxtxt_key_queue_lock);
+}
+// returns pressed key from head of queue
+int tuxtxt_getPressedKey()
+{
+	int key;
+	pthread_mutex_lock(&tuxtxt_key_queue_lock);
+	if (tuxtxt_queue_head == tuxtxt_queue_tail)
+		key = -1;
+	else
+	{
+		tuxtxt_queue_head++;
+		key = tuxtxt_pressed_keys_queue[tuxtxt_queue_head % QUEUE_SIZE];
+	}
+	pthread_mutex_unlock(&tuxtxt_key_queue_lock);
+	return key;
 }
 
 /* Local Variables: */

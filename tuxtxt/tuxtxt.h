@@ -23,6 +23,7 @@
 
 #define TUXTXT_CFG_STANDALONE 0  // 1:plugin only 0:use library
 #define TUXTXT_DEBUG 0
+#define TUXTXT_PLUGIN_KEY_HANDLING 1
 
 #include <config.h>
 
@@ -88,6 +89,7 @@ extern int tuxtxt_InitRendering(tstRenderInfo* renderinfo,int setTVFormat);
 extern void tuxtxt_EndRendering(tstRenderInfo* renderinfo);
 extern void tuxtxt_CopyBB2FB(tstRenderInfo* renderinfo);
 extern void tuxtxt_SwitchScreenMode(tstRenderInfo* renderinfo,int newscreenmode);
+extern int tuxtxt_getPressedKey();
 #endif
 
 
