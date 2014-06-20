@@ -39,6 +39,7 @@ class ShellStarter(Screen):
 	def __init__(self, session, args = None):
 		self.skin = ShellStarter.skin
 		Screen.__init__(self, session)
+		self.session = session
 		eTuxtxtApp.getInstance().appClosed.get().append(self.appClosed)
 		eTuxtxtApp.getInstance().startUi()
 		self["actions"] = NumberActionMap(["TeletextActions","NumberActions"],
@@ -75,6 +76,8 @@ class ShellStarter(Screen):
 		#force redraw
 		dsk = getDesktop(0)
 		dsk.resize(dsk.size())
+		if hasattr(self.session, "pip"):
+			self.session.pip.relocate()
 		self.close()
 
 	def handleNumberKey(self, key):
