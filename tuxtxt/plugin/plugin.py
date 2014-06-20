@@ -70,6 +70,8 @@ class ShellStarter(Screen):
 			"menu": self.handleKeyMenu,
 			"exit": self.handleKeyExit,
 		})
+		if hasattr(self.session, "pip"):
+			self.session.pip.pigmode(True)
 
 	def appClosed(self):
 		eTuxtxtApp.getInstance().appClosed.get().remove(self.appClosed)
@@ -77,6 +79,7 @@ class ShellStarter(Screen):
 		dsk = getDesktop(0)
 		dsk.resize(dsk.size())
 		if hasattr(self.session, "pip"):
+			self.session.pip.pigmode(False)
 			self.session.pip.relocate()
 		self.close()
 
