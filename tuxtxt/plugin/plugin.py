@@ -2,6 +2,7 @@ from enigma import eTuxtxtApp, getDesktop
 from Screens.Screen import Screen
 from Plugins.Plugin import PluginDescriptor
 from Components.ActionMap import NumberActionMap
+from Screens.PictureInPicture import PipPigMode
 
 class RcCode:
 	RC_0 = 0x00
@@ -70,16 +71,15 @@ class ShellStarter(Screen):
 			"menu": self.handleKeyMenu,
 			"exit": self.handleKeyExit,
 		})
-		if hasattr(self.session, "pip"):
-			self.session.pip.pigmode(True)
+		PipPigMode(True)
 
 	def appClosed(self):
 		eTuxtxtApp.getInstance().appClosed.get().remove(self.appClosed)
 		#force redraw
 		dsk = getDesktop(0)
 		dsk.resize(dsk.size())
+		PipPigMode(False)
 		if hasattr(self.session, "pip"):
-			self.session.pip.pigmode(False)
 			self.session.pip.relocate()
 		self.close()
 
