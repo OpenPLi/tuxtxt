@@ -1224,7 +1224,7 @@ void *tuxtxt_CacheThread(void *arg)
 		for (line = 0; line < 4; line++)
 		{
 			unsigned char *vtx_rowbyte = &pes_packet[line*0x2e];
-			if ((vtx_rowbyte[0] == 0x02 || vtx_rowbyte[0] == 0x03) && (vtx_rowbyte[1] == 0x2C))
+			if ((vtx_rowbyte[0] == 0x02 || vtx_rowbyte[0] == 0x03) && (vtx_rowbyte[1] == 0x2C) && (vtx_rowbyte[3] == 0xE4))
 			{
 				/* clear rowbuffer */
 				/* convert row from lsb to msb (begin with magazin number) */
