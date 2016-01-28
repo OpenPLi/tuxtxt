@@ -225,7 +225,7 @@ int tuxtxt_run_ui(int pid, int demux)
 		}
 		if (ioctl(rc[rc_num], EVIOCGNAME(128), tmp) < 0)
 			perror("EVIOCGNAME failed");
-		if (!strstr(tmp, "remote control"))
+		if (!strstr(tmp, "remote control") && !strstr(tmp, "key"))
 		{
 			close(rc[rc_num]);
 			rc[rc_num] = -1;
