@@ -25,6 +25,15 @@ if test x"$withtextlcd" != xno ; then
 fi
 AM_CONDITIONAL(HAVE_TEXTLCD, test x"$withtextlcd" != xno)
 
+AC_ARG_WITH(fbdev,
+        AC_HELP_STRING([--with-fbdev=devicename], [use devicename for framebuffer device, e.g. /dev/fb0 ]),
+        [[with_fbdev=$withval]],
+        [[with_fbdev=no]]
+)
+if test x"$with_fbdev" != xno ; then
+        AC_DEFINE_UNQUOTED(FB_DEV, "$withval", [Defines which device to use for main framebuffer (e.g. /dev/fb0)])
+fi
+
 AC_OUTPUT([
 Makefile
 font/Makefile

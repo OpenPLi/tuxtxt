@@ -204,9 +204,9 @@ int tuxtxt_run_ui(int pid, int demux)
 	tuxtxt_cache.vtxtpid = pid;
 
 	/* open Framebuffer */
-	if ((renderinfo.fb=open("/dev/fb/0", O_RDWR)) == -1)
+	if ((renderinfo.fb=open(FB_DEV, O_RDWR)) == -1)
 	{
-		perror("TuxTxt <open /dev/fb/0>");
+		printf("TuxTxt <open %s>: %m", FB_DEV);
 		return 0;
 	}
 	rc[0] = rc[1] =-1;
@@ -727,7 +727,7 @@ int GetTeletextPIDs()
 	/* open demuxer */
 	if ((dmx = open(DMX, O_RDWR)) == -1)
 	{
-		perror("TuxTxt <open DMX>");
+		printf("TuxTxt <open %s>: %m", DMX);
 		return 0;
 	}
 	if (ioctl(dmx, DMX_SET_BUFFER_SIZE, 64*1024) < 0)

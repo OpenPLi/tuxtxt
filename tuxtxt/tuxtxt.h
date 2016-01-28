@@ -92,6 +92,9 @@ extern void tuxtxt_SwitchScreenMode(tstRenderInfo* renderinfo,int newscreenmode)
 extern int tuxtxt_getPressedKey();
 #endif
 
+#ifndef FB_DEV
+# define FB_DEV "/dev/fb/0"
+#endif
 
 #define TUXTXTCONF CONFIGDIR "/tuxtxt/tuxtxt2.conf"
 
