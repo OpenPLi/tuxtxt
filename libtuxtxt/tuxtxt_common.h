@@ -4878,7 +4878,7 @@ void tuxtxt_CopyBB2FB(tstRenderInfo* renderinfo)
 		topdst += screenwidth;
 		for (i=0; i < 24*renderinfo->fontheight; i++)
 		{
-			memcpy(topdst, topsrc,renderinfo->ex-screenwidth);
+			memcpy(topdst, topsrc, screenwidth - renderinfo->ex);
 			topdst += renderinfo->fix_screeninfo.line_length;
 			topsrc += renderinfo->fix_screeninfo.line_length;
 		}
