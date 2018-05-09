@@ -4367,28 +4367,12 @@ void tuxtxt_RenderCharIntern(tstRenderInfo* renderinfo,int Char, tstPageAttr *At
 					if (*sbitbuffer & Bit) /* bit set -> foreground */
 					{
 						color = fgcolor;
-						// render border on the left of the char when transparency enabled
-						if ((p > pstart) && (*(p-1)== bgcolor))
-						{
-							for (f = factor-1; f >= 0; f--)
-								*((p-1) + f*renderinfo->var_screeninfo.xres) = Attribute->bg;
-						}
-						// render border on the top of the char when transparency enabled
-						if ((p > renderinfo->lfb+factor*renderinfo->var_screeninfo.xres) && (*(p-factor*renderinfo->var_screeninfo.xres)== bgcolor))
-						{
-							for (f = factor-1; f >= 0; f--)
-								*((p-factor*renderinfo->var_screeninfo.xres) + f*renderinfo->var_screeninfo.xres) = Attribute->bg;
-						}
 					}
 					else /* bit not set -> background */
 					{
 						color = bgcolor;
-						// render border on the right of the char when transparency enabled
-						if ((p > pstart) && (*(p-1)== fgcolor))
-						    color = Attribute->bg;
-						// render border on the bottom of the char when transparency enabled
-						if ((p > renderinfo->lfb+factor*renderinfo->var_screeninfo.xres) && (*(p-factor*renderinfo->var_screeninfo.xres)== fgcolor))
-						    color = Attribute->bg;
+						if (fgcolor == tuxtxt_color_black && renderinfo->transpmode == 1)
+							color = Attribute->bg;
 					}
 					for (f = factor-1; f >= 0; f--)
 						memcpy((p + f*renderinfo->fix_screeninfo.line_length),bgra[color],4);
