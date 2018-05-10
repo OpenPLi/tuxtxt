@@ -4364,14 +4364,30 @@ void tuxtxt_RenderCharIntern(tstRenderInfo* renderinfo,int Char, tstPageAttr *At
 					if (--pixtodo < 0)
 						break;
 
+					/* render around the char a one pixel wide border to enhance visibility in case of transparency */
 					if (*sbitbuffer & Bit) /* bit set -> foreground */
 					{
 						color = fgcolor;
+						// render border on the left of the char when transparency enabled
+						if ((p > pstart) && (memcmp(p-4,bgra[bgcolor],4)==0))
+						{
+							for (f = factor-1; f >= 0; f--)
+								memcpy(p-4 + f*renderinfo->fix_screeninfo.line_length,bgra[Attribute->bg],4);
+						}
+						// render border on the top of the char when transparency enabled
+						if ((p-factor*renderinfo->fix_screeninfo.line_length >= renderinfo->lfb + renderinfo->PosX*4 + (yoffset + renderinfo->PosY) * renderinfo->fix_screeninfo.line_length) && (memcmp(p-renderinfo->fix_screeninfo.line_length,bgra[bgcolor],4)==0))
+						{
+							memcpy((p-renderinfo->fix_screeninfo.line_length),bgra[Attribute->bg],4);
+						}
 					}
 					else /* bit not set -> background */
 					{
 						color = bgcolor;
-						if (fgcolor == tuxtxt_color_black && renderinfo->transpmode == 1)
+						// render border on the right of the char when transparency enabled
+						if ((p > pstart) && (memcmp(p-4,bgra[fgcolor],4)==0))
+							color = Attribute->bg;
+						// render border on the bottom of the char when transparency enabled
+						if ((p-factor*renderinfo->fix_screeninfo.line_length >= renderinfo->lfb + renderinfo->PosX*4 + (yoffset + renderinfo->PosY) * renderinfo->fix_screeninfo.line_length) && (memcmp(p-renderinfo->fix_screeninfo.line_length,bgra[fgcolor],4)==0))
 							color = Attribute->bg;
 					}
 					for (f = factor-1; f >= 0; f--)
@@ -4389,8 +4405,25 @@ void tuxtxt_RenderCharIntern(tstRenderInfo* renderinfo,int Char, tstPageAttr *At
 				}
 				sbitbuffer++;
 			}
-			for (Bit = (renderinfo->usettf ? (curfontwidth - xfactor*(renderinfo->sbit->width + renderinfo->sbit->left + renderinfo->TTFShiftX)) : pixtodo);
-				  Bit > 0; Bit--) /* fill rest of char width */
+			/* fill rest of char width */
+			if (renderinfo->usettf)
+			{
+				Bit = curfontwidth - xfactor*(renderinfo->sbit->width + renderinfo->sbit->left + renderinfo->TTFShiftX);
+				/* if transparency and pixel left from current position has fgcolor then render border */
+				if (renderinfo->transpmode == 1)
+				{
+					if ((p > pstart) && (memcmp(p-4,bgra[fgcolor],4)==0))
+					{
+						Bit--;
+						for (f = factor-1; f >= 0; f--)
+							memcpy((p + f*renderinfo->fix_screeninfo.line_length),bgra[Attribute->bg],4);
+						p+=4;
+					}
+				}
+			}
+			else
+				Bit = pixtodo;
+			for (; Bit > 0; Bit--)
 			{
 				for (f = factor-1; f >= 0; f--)
 					memcpy((p + f*renderinfo->fix_screeninfo.line_length),bgra[bgcolor],4);
@@ -4401,6 +4434,21 @@ void tuxtxt_RenderCharIntern(tstRenderInfo* renderinfo,int Char, tstPageAttr *At
 		}
 
 		Row = renderinfo->ascender - renderinfo->sbit->top + he + renderinfo->TTFShiftY;
+		/* if transparency and pixel up from current position has fgcolor then render border */
+		if (renderinfo->transpmode == 1)
+		{
+			for (int pixel = 0; pixel < curfontwidth; pixel++)
+			{
+				if ((p-factor*renderinfo->fix_screeninfo.line_length >= renderinfo->lfb + renderinfo->PosX*4 + (yoffset + renderinfo->PosY) * renderinfo->fix_screeninfo.line_length) && (memcmp(p-renderinfo->fix_screeninfo.line_length,bgra[fgcolor],4)==0))
+					for (f = factor-1; f >= 0; f--)
+						memcpy(p + f*renderinfo->fix_screeninfo.line_length,bgra[Attribute->bg],4);
+				else
+					for (f = factor-1; f >= 0; f--)
+						memcpy(p + f*renderinfo->fix_screeninfo.line_length,bgra[bgcolor],4);
+				p+=4;
+			}
+			Row++;
+		}
 		tuxtxt_FillRect(renderinfo->lfb,renderinfo->fix_screeninfo.line_length,renderinfo->PosX, renderinfo->PosY + yoffset + Row*factor, curfontwidth, (renderinfo->fontheight - Row) * factor, bgcolor); /* fill lower margin */
 		if (Attribute->underline)
 			tuxtxt_FillRect(renderinfo->lfb,renderinfo->fix_screeninfo.line_length,renderinfo->PosX, renderinfo->PosY + yoffset + (renderinfo->fontheight-2)* factor, curfontwidth,2*factor, fgcolor); /* underline char */
