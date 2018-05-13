@@ -4437,7 +4437,8 @@ void tuxtxt_RenderCharIntern(tstRenderInfo* renderinfo,int Char, tstPageAttr *At
 		/* if transparency and pixel up from current position has fgcolor then render border */
 		if (renderinfo->transpmode == 1)
 		{
-			for (int pixel = 0; pixel < curfontwidth; pixel++)
+			int pixel;
+			for (pixel = 0; pixel < curfontwidth; pixel++)
 			{
 				if ((p-factor*renderinfo->fix_screeninfo.line_length >= renderinfo->lfb + renderinfo->PosX*4 + (yoffset + renderinfo->PosY) * renderinfo->fix_screeninfo.line_length) && (memcmp(p-renderinfo->fix_screeninfo.line_length,bgra[fgcolor],4)==0))
 					for (f = factor-1; f >= 0; f--)
