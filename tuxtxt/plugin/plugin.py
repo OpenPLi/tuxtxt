@@ -43,7 +43,7 @@ class ShellStarter(Screen):
 		self.session = session
 		eTuxtxtApp.getInstance().appClosed.get().append(self.appClosed)
 		eTuxtxtApp.getInstance().startUi()
-		self["actions"] = NumberActionMap(["TeletextActions","NumberActions"],
+		self["actions"] = NumberActionMap(["TeletextActions", "NumberActions"],
 		{
 			"0": self.handleNumberKey,
 			"1": self.handleNumberKey,
