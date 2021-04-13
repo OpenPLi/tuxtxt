@@ -140,4 +140,3 @@ def main(session, **kwargs):
 
 def Plugins(**kwargs):
 	return PluginDescriptor(name="TuxTXT", description="Videotext", where=PluginDescriptor.WHERE_TELETEXT, fnc=main)
-
