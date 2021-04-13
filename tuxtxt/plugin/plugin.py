@@ -37,7 +37,7 @@ class ShellStarter(Screen):
 		<screen position="1,1" size="1,1" title="TuxTXT" >
 		</screen>"""
 
-	def __init__(self, session, args = None):
+	def __init__(self, session, args=None):
 		self.skin = ShellStarter.skin
 		Screen.__init__(self, session)
 		self.session = session
@@ -135,5 +135,5 @@ def main(session, **kwargs):
 	session.open(ShellStarter)
 
 def Plugins(**kwargs):
-	return PluginDescriptor(name="TuxTXT", description="Videotext", where = PluginDescriptor.WHERE_TELETEXT, fnc=main)
+	return PluginDescriptor(name="TuxTXT", description="Videotext", where=PluginDescriptor.WHERE_TELETEXT, fnc=main)
 
