@@ -4,6 +4,7 @@ from Plugins.Plugin import PluginDescriptor
 from Components.ActionMap import NumberActionMap
 from Screens.PictureInPicture import PipPigMode
 
+
 class RcCode:
 	RC_0 = 0x00
 	RC_1 = 0x01
@@ -31,6 +32,7 @@ class RcCode:
 	RC_HELP = 0x17
 	RC_MENU = 0x18
 	RC_HOME = 0x1F
+
 
 class ShellStarter(Screen):
 	skin = """
@@ -131,8 +133,10 @@ class ShellStarter(Screen):
 	def handleKeyExit(self):
 		eTuxtxtApp.getInstance().handleKey(RcCode.RC_HOME)
 
+
 def main(session, **kwargs):
 	session.open(ShellStarter)
+
 
 def Plugins(**kwargs):
 	return PluginDescriptor(name="TuxTXT", description="Videotext", where=PluginDescriptor.WHERE_TELETEXT, fnc=main)
