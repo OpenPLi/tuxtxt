@@ -4346,7 +4346,7 @@ void tuxtxt_RenderCharIntern(tstRenderInfo* renderinfo,int Char, tstPageAttr *At
 		for (Row = he; Row; Row--) /* row counts up, but down may be a little faster :) */
 		{
 			int pixtodo = (renderinfo->usettf ? renderinfo->sbit->width : curfontwidth);
-			char *pstart = p;
+			unsigned char *pstart = p;
 
 			for (Bit = xfactor * (renderinfo->sbit->left + renderinfo->TTFShiftX); Bit > 0; Bit--) /* fill left margin */
 			{
