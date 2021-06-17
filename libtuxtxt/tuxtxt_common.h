@@ -23,6 +23,8 @@
 
 #include <linux/input.h>
 
+void writeproc(const char* dest, const char *value);
+
 const char *ObjectSource[] =
 {
 	"(illegal)",
