@@ -18,12 +18,6 @@
  *                                                                            *
  ******************************************************************************/
 
-#ifdef DEBUG
-#undef DEBUG
-#endif
-
-#define DEBUG 0
-
 #include <sys/ioctl.h>
 #include <fcntl.h>
 
