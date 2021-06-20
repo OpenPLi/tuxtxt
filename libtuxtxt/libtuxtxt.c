@@ -18,12 +18,6 @@
  *                                                                            *
  ******************************************************************************/
 
-#ifdef DEBUG
-#undef DEBUG
-#endif
-
-#define DEBUG 0
-
 #include <sys/ioctl.h>
 #include <fcntl.h>
 
@@ -44,7 +38,12 @@
  ******************************************************************************/
 
 static int tuxtxt_initialized=0;
+
+#ifdef __GLIBC__
 static pthread_mutex_t tuxtxt_control_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+#else
+static pthread_mutex_t tuxtxt_control_lock = {{PTHREAD_MUTEX_RECURSIVE}};
+#endif
 static pthread_mutex_t tuxtxt_key_queue_lock = PTHREAD_MUTEX_INITIALIZER;
 
 int tuxtxt_init()
