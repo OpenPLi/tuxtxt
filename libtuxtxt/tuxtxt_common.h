@@ -2198,12 +2198,14 @@ int tuxtxt_eval_triplet(int iOData, tstCachedPage *pstCachedPage,
 		default:
 			if (iMode == 0x10 && iData == 0x2a)
 				iData = '@';
-			if (iMode >= 0x10 && page_char[offset] == iData)
+			/* as in EN 300 706: the triplet character replaces the body character (only printable codes; control codes would blank the cell) */
+			if (iMode >= 0x10 && iData >= 0x20)
 			{
 #if TUXTXT_DEBUG
 				if (dumpl25)
 					printf("  ,%02d G0 #%02x %c +diacr. %x", iAddress, iData, iData, iMode & 0x0f);
 #endif
+				page_char[offset] = iData;
 				if (*endcol < 0) /* passive object */
 				{
 					attrPassive->charset = C_G0P;
