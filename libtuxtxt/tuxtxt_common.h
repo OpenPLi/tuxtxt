@@ -4328,14 +4328,18 @@ void tuxtxt_RenderCharIntern(tstRenderInfo* renderinfo,int Char, tstPageAttr *At
 		unsigned char *p;
 		int f; /* running counter for zoom factor */
 		int he = renderinfo->sbit->height; // sbit->height should not be altered, I guess
-		Row = factor * (renderinfo->ascender - renderinfo->sbit->top + renderinfo->TTFShiftY);
-		if (Row < 0)
+		/* number of bitmap (source) rows above the cell top; Row is in screen rows, i.e. multiplied by 'factor' (double height).
+		 * The original code used the scaled value to skip source rows, so with factor 2 glyphs that start above the cell
+		 * (bitmap top above the ascender) were shifted by a different amount than the others. */
+		int srow = renderinfo->ascender - renderinfo->sbit->top + renderinfo->TTFShiftY;
+		Row = factor * srow;
+		if (srow < 0)
 		{
-		    sbitbuffer  -= renderinfo->sbit->pitch*Row;
-		    he += Row;
+		    sbitbuffer  -= renderinfo->sbit->pitch*srow;
+		    he += srow;
 		    Row = 0;
 		}
-		else		
+		else
 				tuxtxt_FillRect(renderinfo->lfb,renderinfo->fix_screeninfo.line_length,renderinfo->PosX, renderinfo->PosY + yoffset, curfontwidth, Row, bgcolor); /* fill upper margin */
 
 		if (renderinfo->ascender - renderinfo->sbit->top + renderinfo->TTFShiftY + he > renderinfo->fontheight)
