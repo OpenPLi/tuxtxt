@@ -1,7 +1,7 @@
 lib_LTLIBRARIES = libtuxtxt.la
 
 pkgincludedir = ${includedir}
-pkginclude_HEADERS = tuxtxt_def.h tuxtxt_common.h
+pkginclude_HEADERS = tuxtxt_def.h tuxtxt_common.h tuxtxt_compose.h
 
 libtuxtxt_la_SOURCES = libtuxtxt.c
 

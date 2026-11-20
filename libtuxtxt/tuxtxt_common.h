@@ -22,6 +22,7 @@
 #endif
 
 #include <linux/input.h>
+#include "tuxtxt_compose.h"
 
 void writeproc(const char* dest, const char *value);
 
@@ -4255,6 +4256,7 @@ void tuxtxt_RenderCharIntern(tstRenderInfo* renderinfo,int Char, tstPageAttr *At
 	else
 		xfactor = 1;
 
+	int diacrit = Attribute->diacrit;
 	if (!(glyph = FT_Get_Char_Index(renderinfo->face, alphachar)))
 	{
 #if TUXTXT_DEBUG
@@ -4282,44 +4284,70 @@ void tuxtxt_RenderCharIntern(tstRenderInfo* renderinfo,int Char, tstPageAttr *At
 
 	/* render char */
 	sbitbuffer = renderinfo->sbit->buffer;
-	char localbuffer[1000]; // should be enough to store one character-bitmap...
 	// add diacritical marks
-	if (Attribute->diacrit)
+	if (diacrit)
 	{
-		FTC_SBit        sbit_diacrit;
+		FTC_SBitRec     acc;               /* private copy: the cache may recycle its entries on the next lookup */
+		unsigned char   accbuffer[1000];
+		int             accok = 0;
+		int             baseglyph = glyph;
+		int             lowering = 0, synth = 0;
 
 		if ((national_subset_local == NAT_SC) || (national_subset_local == NAT_RB) || (national_subset_local == NAT_UA))
-			Char = G2table[1][0x20+ Attribute->diacrit];
+			Char = G2table[1][0x20+ diacrit];
 		else if (national_subset_local == NAT_GR)
-			Char = G2table[2][0x20+ Attribute->diacrit];
+			Char = G2table[2][0x20+ diacrit];
 		else if (national_subset_local == NAT_HB)
-			Char = G2table[3][0x20+ Attribute->diacrit];
+			Char = G2table[3][0x20+ diacrit];
 		else if (national_subset_local == NAT_AR)
-			Char = G2table[3][0x20+ Attribute->diacrit];
+			Char = G2table[3][0x20+ diacrit];
 		else
-			Char = G2table[0][0x20+ Attribute->diacrit];
-		if ((glyph = FT_Get_Char_Index(renderinfo->face, Char)))
+			Char = G2table[0][0x20+ diacrit];
+		if (!FT_Get_Char_Index(renderinfo->face, Char))
+			Char = tuxtxt_accent_substitute(Char);
+		accok = tuxtxt_get_accent(renderinfo, Char, &acc, accbuffer, sizeof(accbuffer));
+		if (!accok || !tuxtxt_sbit_ink(&acc, 0, 0, 0, 0))
 		{
-#if ((defined(FREETYPE_MAJOR)) && (((FREETYPE_MAJOR == 2) && (((FREETYPE_MINOR == 1) && (FREETYPE_PATCH >= 9)) || (FREETYPE_MINOR > 1))) || (FREETYPE_MAJOR > 2)))
-			if ((error = FTC_SBitCache_Lookup(renderinfo->cache, &renderinfo->typettf, glyph, &sbit_diacrit, NULL)) == 0)
-#else
-			if ((error = FTC_SBit_Cache_Lookup(renderinfo->cache, &renderinfo->typettf, glyph, &sbit_diacrit)) == 0)
-#endif
-			{
-					sbitbuffer = localbuffer;
-					memcpy(sbitbuffer,renderinfo->sbit->buffer,renderinfo->sbit->pitch*renderinfo->sbit->height);
+			/* the accent glyph is missing or a blank bitmap in this strike (21/22 pixel strikes of tuxtxt.otb) */
+			FTC_SBitRec     a2;
+			unsigned char   b2[1000];
+			int             sub = tuxtxt_accent_substitute(Char);
 
-					for (Row = 0; Row < renderinfo->sbit->height; Row++)
-					{
-						for (Pitch = 0; Pitch < renderinfo->sbit->pitch; Pitch++)
-						{
-							if (sbit_diacrit->pitch > Pitch && sbit_diacrit->height > Row)
-								sbitbuffer[Row*renderinfo->sbit->pitch+Pitch] |= sbit_diacrit->buffer[Row*renderinfo->sbit->pitch+Pitch];
-						}
-					}
-				}
+			accok = 0;
+			if (sub != Char && tuxtxt_get_accent(renderinfo, sub, &a2, b2, sizeof(b2)) && tuxtxt_sbit_ink(&a2, 0, 0, 0, 0))
+			{
+				memcpy(accbuffer, b2, a2.pitch * a2.height);
+				acc = a2;
+				acc.buffer = accbuffer;
+				accok = lowering = 1;
+			}
+			else
+				synth = 1;
+		}
+		/* the lookups above may have recycled the cache entry of the base glyph: fetch it again */
+		if ((error = TUXTXT_SBIT_LOOKUP(renderinfo, baseglyph, &renderinfo->sbit)) != 0)
+		{
+			tuxtxt_FillRect(renderinfo->lfb,renderinfo->fix_screeninfo.line_length,renderinfo->PosX, renderinfo->PosY + yoffset, curfontwidth, renderinfo->fontheight, bgcolor);
+			renderinfo->PosX += curfontwidth;
+			return;
+		}
+		sbitbuffer = renderinfo->sbit->buffer;
+		if (accok && lowering)
+			tuxtxt_lower_accent(&acc, renderinfo->sbit, 0);
+		else if (accok && !synth)
+			tuxtxt_lower_accent(&acc, renderinfo->sbit, 2);   /* e.g. an acute at capital height over a lowercase letter */
+		else if (synth)
+			accok = tuxtxt_make_accent(&acc, accbuffer, diacrit, renderinfo->sbit);
+		if (accok)
+		{
+			FTC_SBit merged = tuxtxt_merge_sbit(renderinfo->sbit, &acc);
+			if (merged)
+			{
+				renderinfo->sbit = merged;
+				sbitbuffer = merged->buffer;
 			}
 		}
+	}
 
     int backupTTFshiftY = renderinfo->TTFShiftY;
     if (national_subset_local == NAT_AR) 
