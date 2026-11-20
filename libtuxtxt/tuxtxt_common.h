@@ -3888,7 +3888,7 @@ int tuxtxt_RenderChar(unsigned char *lfb, // pointer to render buffer, min. font
 			Char = G2table[1][Char-0x20];
 		else if (national_subset_local == NAT_GR)
 			Char = G2table[2][Char-0x20];
-		else if (national_subset_local == NAT_AR)
+		else if (national_subset_local == NAT_AR || national_subset_local == NAT_HB)
 			Char = G2table[3][Char-0x20];
 		else
 			Char = G2table[0][Char-0x20];
