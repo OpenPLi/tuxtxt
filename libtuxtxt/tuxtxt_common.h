@@ -4268,6 +4268,11 @@ void tuxtxt_RenderCharIntern(tstRenderInfo* renderinfo,int Char, tstPageAttr *At
 			diacrit = 0;
 		}
 	}
+	/* G2 accent on a lower case i: the accent replaces the dot, so use the dotless i (U+0131) as base for merging */
+	if (diacrit && alphachar == 'i' && national_subset_local != NAT_SC && national_subset_local != NAT_RB && national_subset_local != NAT_UA &&
+	    national_subset_local != NAT_GR && national_subset_local != NAT_HB && national_subset_local != NAT_AR &&
+	    FT_Get_Char_Index(renderinfo->face, 0x0131))
+		alphachar = 0x0131;
 	if (!(glyph = FT_Get_Char_Index(renderinfo->face, alphachar)))
 	{
 #if TUXTXT_DEBUG
