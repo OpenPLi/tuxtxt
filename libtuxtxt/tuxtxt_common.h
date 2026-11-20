@@ -4257,6 +4257,17 @@ void tuxtxt_RenderCharIntern(tstRenderInfo* renderinfo,int Char, tstPageAttr *At
 		xfactor = 1;
 
 	int diacrit = Attribute->diacrit;
+	/* G2 accent + base letter: use the precomposed glyph if the font has one (no bitmap merging needed) */
+	if (diacrit && national_subset_local != NAT_SC && national_subset_local != NAT_RB && national_subset_local != NAT_UA &&
+	    national_subset_local != NAT_GR && national_subset_local != NAT_HB && national_subset_local != NAT_AR)
+	{
+		int pc = tuxtxt_compose_char(alphachar, diacrit);
+		if (pc && FT_Get_Char_Index(renderinfo->face, pc))
+		{
+			alphachar = pc;
+			diacrit = 0;
+		}
+	}
 	if (!(glyph = FT_Get_Char_Index(renderinfo->face, alphachar)))
 	{
 #if TUXTXT_DEBUG
