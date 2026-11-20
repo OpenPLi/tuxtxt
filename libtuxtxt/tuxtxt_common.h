@@ -1158,6 +1158,25 @@ void tuxtxt_erase_page(int magazine)
 	pthread_mutex_unlock(&tuxtxt_cache_lock);
 }
 
+/* C4 (erase page): the packets X/1 to X/28 of the previous transmission of a page are erased, which includes the
+ * enhancement data (packets 26 to 28) kept in pageinfo.ext. Otherwise they would be applied to the next version of
+ * the page if that one carries no packets 26 of its own.
+ * The blocks are invalidated in place and not freed, because the display thread reads them without taking the
+ * cache lock: 0xFF is a hamming error, which ends the evaluation of the triplets. */
+static void tuxtxt_erase_enhancement(tstPageinfo *pageinfo)
+{
+	int d;
+
+	if (!pageinfo->ext)
+		return;
+	for (d = 0; d < 16; d++)
+		if (pageinfo->ext->p26[d])
+			memset(pageinfo->ext->p26[d], 0xFF, 13 * 3);
+	if (pageinfo->ext->p27)
+		memset(pageinfo->ext->p27, 0, 4 * sizeof(tstp27));
+	pageinfo->ext->p28Received = 0;
+}
+
 void tuxtxt_allocate_cache(int magazine)
 {
 	/* check cachetable and allocate memory if needed */
@@ -1344,6 +1363,7 @@ void *tuxtxt_CacheThread(void *arg)
 						memset(tuxtxt_cache.astCachetable[tuxtxt_cache.current_page[magazine]][tuxtxt_cache.current_subpage[magazine]]->data, ' ', 23*40);
 #endif
 						memset(pagedata[magazine],' ', 23*40);
+						tuxtxt_erase_enhancement(pageinfo_thread);
 					}
 					if (dehamming[vtxt_row[9]] & 8)   /* C8 -> update page */
 						doupdate = tuxtxt_cache.page_receiving;
@@ -2528,7 +2548,7 @@ void tuxtxt_eval_l25(unsigned char* page_char, tstPageAttr *page_atrb, int hintm
 		{
 			tstExtData *e = pi->ext;
 
-			if (e->p26[0])
+			if (e->p26[0] && deh24(e->p26[0]) >= 0) /* not erased */
 				p26Received = 1;
 
 			if (e->p27)
