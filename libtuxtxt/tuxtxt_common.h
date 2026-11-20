@@ -4153,6 +4153,18 @@ void tuxtxt_FillBorder(tstRenderInfo* renderinfo, int color)
 }
 
 
+/* Bitmap strike (tuxtxt.otb contains strikes of 21, 22 and 23 pixels) for a given character cell width.
+ * Used for the initial size as well as whenever the cell width changes, so that a page keeps the same
+ * font weight before and after the width has been changed temporarily (e.g. to draw long TOP texts). */
+static int tuxtxt_otb_size(int fontwidth)
+{
+	if (fontwidth < 11)
+		return 21;
+	if (fontwidth < 13)
+		return 22;
+	return 23;
+}
+
 void tuxtxt_setfontwidth(tstRenderInfo* renderinfo,int newwidth)
 {
 	if (renderinfo->fontwidth != newwidth)
@@ -4167,12 +4179,7 @@ void tuxtxt_setfontwidth(tstRenderInfo* renderinfo,int newwidth)
 #endif
 		else
 		{
-			if (newwidth < 11)
-				newwidth = 21;
-			else if (newwidth < 14)
-				newwidth = 22;
-			else
-				newwidth = 23;
+			newwidth = tuxtxt_otb_size(newwidth);
 #if ((defined(FREETYPE_MAJOR)) && (((FREETYPE_MAJOR == 2) && (((FREETYPE_MINOR == 1) && (FREETYPE_PATCH >= 9)) || (FREETYPE_MINOR > 1))) || (FREETYPE_MAJOR > 2)))
 			renderinfo->typettf.width  = renderinfo->typettf.height = (FT_UShort) newwidth;
 #else
@@ -5522,12 +5529,12 @@ int tuxtxt_InitRendering(tstRenderInfo* renderinfo,int setTVFormat)
 	{
 #if ((defined(FREETYPE_MAJOR)) && (((FREETYPE_MAJOR == 2) && (((FREETYPE_MINOR == 1) && (FREETYPE_PATCH >= 9)) || (FREETYPE_MINOR > 1))) || (FREETYPE_MAJOR > 2)))
 		renderinfo->typettf.face_id = (FTC_FaceID) TUXTXTOTBVAR;
-		renderinfo->typettf.width  = (FT_UShort) 23;
-		renderinfo->typettf.height = (FT_UShort) 23;
+		renderinfo->typettf.width  = (FT_UShort) tuxtxt_otb_size(renderinfo->fontwidth);
+		renderinfo->typettf.height = (FT_UShort) tuxtxt_otb_size(renderinfo->fontwidth);
 #else
 		renderinfo->typettf.font.face_id = (FTC_FaceID) TUXTXTOTBVAR;
-		renderinfo->typettf.font.pix_width  = (FT_UShort) 23;
-		renderinfo->typettf.font.pix_height = (FT_UShort) 23;
+		renderinfo->typettf.font.pix_width  = (FT_UShort) tuxtxt_otb_size(renderinfo->fontwidth);
+		renderinfo->typettf.font.pix_height = (FT_UShort) tuxtxt_otb_size(renderinfo->fontwidth);
 #endif
 	}
 
